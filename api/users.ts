@@ -18,7 +18,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // GET /api/users - Fetch all users
     if (req.method === 'GET') {
         try {
-            const { rows } = await pool.query("SELECT id, username, role, plan, email, sip, billing, chat_enabled, ai_enabled FROM users ORDER BY role, username");
+            const { rows } = await pool.query("SELECT id, username, role, plan, email, sip, billing, COALESCE(chat_enabled, FALSE) as chat_enabled, COALESCE(ai_enabled, FALSE) as ai_enabled FROM users ORDER BY role, username");
             const users: User[] = rows.map(row => ({
                 ...row,
                 plan: typeof row.plan === 'string' ? JSON.parse(row.plan) : row.plan,
