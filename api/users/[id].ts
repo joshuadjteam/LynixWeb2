@@ -25,9 +25,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             const userData = req.body;
             const query = `
                 UPDATE users
-                SET username = $1, email = $2, sip = $3, plan = $4, billing = $5, role = $6, chat_enabled = $7, ai_enabled = $8
-                WHERE id = $9
-                RETURNING id, username, role, plan, email, sip, billing, chat_enabled, ai_enabled;
+                SET username = $1, email = $2, sip = $3, plan = $4, billing = $5, role = $6, chat_enabled = $7, ai_enabled = $8, localmail_enabled = $9
+                WHERE id = $10
+                RETURNING id, username, role, plan, email, sip, billing, chat_enabled, ai_enabled, localmail_enabled;
             `;
             const values = [
                 userData.username,
@@ -38,6 +38,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 userData.role,
                 userData.chat_enabled,
                 userData.ai_enabled,
+                userData.localmail_enabled,
                 id
             ];
             const { rows } = await pool.query(query, values);

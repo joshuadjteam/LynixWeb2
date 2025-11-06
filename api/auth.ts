@@ -26,7 +26,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         }
 
         const { rows } = await pool.query(
-            "SELECT id, username, password_hash, role, plan, email, sip, billing, chat_enabled, ai_enabled FROM users WHERE lower(username) = $1",
+            "SELECT id, username, password_hash, role, plan, email, sip, billing, chat_enabled, ai_enabled, localmail_enabled FROM users WHERE lower(username) = $1",
             [username.toLowerCase()]
         );
 
@@ -51,7 +51,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             sip: user.sip,
             billing: user.billing,
             chat_enabled: user.chat_enabled || false,
-            ai_enabled: user.ai_enabled || false
+            ai_enabled: user.ai_enabled || false,
+            localmail_enabled: user.localmail_enabled || false
         };
 
         return res.status(200).json(userToReturn);

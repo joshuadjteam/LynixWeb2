@@ -18,7 +18,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // GET /api/users - Fetch all users
     if (req.method === 'GET') {
         try {
-            const { rows } = await pool.query("SELECT id, username, role, plan, email, sip, billing, COALESCE(chat_enabled, FALSE) as chat_enabled, COALESCE(ai_enabled, FALSE) as ai_enabled FROM users ORDER BY role, username");
+            const { rows } = await pool.query("SELECT id, username, role, plan, email, sip, billing, COALESCE(chat_enabled, FALSE) as chat_enabled, COALESCE(ai_enabled, FALSE) as ai_enabled, COALESCE(localmail_enabled, FALSE) as localmail_enabled FROM users ORDER BY role, username");
             const users: User[] = rows.map(row => ({
                 ...row,
                 plan: typeof row.plan === 'string' ? JSON.parse(row.plan) : row.plan,
@@ -44,9 +44,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             const newId = userData.username.toLowerCase();
 
             const query = `
-                INSERT INTO users (id, username, password_hash, role, plan, email, sip, billing, chat_enabled, ai_enabled)
-                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
-                RETURNING id, username, role, plan, email, sip, billing, chat_enabled, ai_enabled;
+                INSERT INTO users (id, username, password_hash, role, plan, email, sip, billing, chat_enabled, ai_enabled, localmail_enabled)
+                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+                RETURNING id, username, role, plan, email, sip, billing, chat_enabled, ai_enabled, localmail_enabled;
             `;
             const values = [
                 newId, 
@@ -58,7 +58,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 userData.sip, 
                 JSON.stringify(userData.billing),
                 userData.chat_enabled || false,
-                userData.ai_enabled || false
+                userData.ai_enabled || false,
+                userData.localmail_enabled || false
             ];
 
             const { rows } = await pool.query(query, values);

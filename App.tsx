@@ -1,5 +1,5 @@
-import React, { useState, useCallback, useEffect } from 'react';
-import { Page, User, GuestSession } from './types';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
+import { Page, User, GuestSession, Alert } from './types';
 import Header from './components/Header';
 import HomePage from './components/HomePage';
 import ContactPage from './components/ContactPage';
@@ -10,6 +10,7 @@ import SoftphonePage from './components/SoftphonePage';
 import LynxAiPage from './components/LynxAiPage';
 import AiChoiceModal from './components/AiChoiceModal';
 import ChatPage from './components/ChatPage';
+import LocalMailPage from './components/LocalMailPage';
 import Footer from './components/Footer';
 
 const GUEST_SESSION_KEY = 'lynixGuestAiSession';
@@ -22,6 +23,8 @@ const App: React.FC = () => {
     const [isAiChoiceModalOpen, setIsAiChoiceModalOpen] = useState(false);
     const [loginRedirectToAi, setLoginRedirectToAi] = useState(false);
     const [guestSession, setGuestSession] = useState<GuestSession | null>(null);
+    const [alerts, setAlerts] = useState<Alert[]>([]);
+    const alertIntervalRef = useRef<number | null>(null);
 
     const handleLoginSuccess = useCallback((user: User) => {
         setLoggedInUser(user);
@@ -38,7 +41,60 @@ const App: React.FC = () => {
     const handleSignOut = useCallback(() => {
         setLoggedInUser(null);
         setCurrentPage(Page.Home);
+        setAlerts([]);
+        if (alertIntervalRef.current) {
+            clearInterval(alertIntervalRef.current);
+        }
     }, []);
+
+    const fetchAlerts = useCallback(async () => {
+        if (!loggedInUser) return;
+        try {
+            const response = await fetch('/api/chat/alerts');
+            if(response.ok) {
+                const data = await response.json();
+                setAlerts(data);
+            }
+        } catch (error) {
+            console.error("Failed to fetch alerts:", error);
+        }
+    }, [loggedInUser]);
+
+    useEffect(() => {
+        if (loggedInUser && loggedInUser.chat_enabled) {
+            fetchAlerts(); // Initial fetch
+            alertIntervalRef.current = window.setInterval(fetchAlerts, 5000); // Poll every 5 seconds
+        } else {
+            if (alertIntervalRef.current) {
+                clearInterval(alertIntervalRef.current);
+            }
+        }
+        return () => {
+            if (alertIntervalRef.current) {
+                clearInterval(alertIntervalRef.current);
+            }
+        };
+    }, [loggedInUser, fetchAlerts]);
+
+    const handleAlertClick = async (alert: Alert) => {
+        // Find the user associated with the alert to open the chat
+        try {
+            const res = await fetch('/api/chat/users');
+            const users = await res.json();
+            const targetUser = users.find((u: User) => u.id === alert.sender_id);
+            if (targetUser) {
+                 // Set the selected user in ChatPage's state somehow, or pass it via props.
+                 // For now, we just navigate. The chat page will fetch messages.
+                 setCurrentPage(Page.Chat);
+                 // This requires ChatPage to be able to accept an initial user.
+                 // This is a complex state management problem. For now, we'll navigate
+                 // and the user can click on the contact.
+                 // A better solution would use a global state manager (like Redux or Context).
+            }
+             // Mark as read by re-fetching alerts (the API marks them as read)
+            fetchAlerts();
+        } catch (e) { console.error(e) }
+    };
 
     const handleSelectLynixId = () => {
         setLoginRedirectToAi(true);
@@ -53,7 +109,6 @@ const App: React.FC = () => {
             if (storedSession) {
                 const parsed = JSON.parse(storedSession) as GuestSession;
                 if (parsed.resetTime && Date.now() > parsed.resetTime) {
-                    // Session expired, create a new one
                     session = { responsesLeft: GUEST_MESSAGE_LIMIT, resetTime: null };
                 } else {
                     session = parsed;
@@ -92,10 +147,11 @@ const App: React.FC = () => {
 
     const canAccessAI = loggedInUser && loggedInUser.ai_enabled && (loggedInUser.role === 'admin' || loggedInUser.role === 'standard') && loggedInUser.billing.status !== 'Suspended';
     const canAccessChat = loggedInUser && loggedInUser.chat_enabled;
+    const canAccessLocalMail = loggedInUser && loggedInUser.localmail_enabled;
 
     useEffect(() => {
         if (currentPage !== Page.LynxAI) {
-            setGuestSession(null); // Clear guest session when navigating away
+            setGuestSession(null);
         }
     }, [currentPage]);
     
@@ -108,6 +164,7 @@ const App: React.FC = () => {
             case Page.Admin: return loggedInUser?.role === 'admin' ? <AdminPage /> : <HomePage />;
             case Page.Softphone: return loggedInUser ? <SoftphonePage /> : <SignOnPage onLoginSuccess={handleLoginSuccess} />;
             case Page.Chat: return canAccessChat ? <ChatPage currentUser={loggedInUser} /> : <HomePage />;
+            case Page.LocalMail: return canAccessLocalMail ? <LocalMailPage currentUser={loggedInUser} /> : <HomePage />;
             case Page.LynxAI:
                 if (canAccessAI) {
                     return <LynxAiPage user={loggedInUser} />;
@@ -115,7 +172,6 @@ const App: React.FC = () => {
                 if (guestSession) {
                     return <LynxAiPage guestSession={guestSession} onGuestMessageSent={handleGuestMessageSent} />;
                 }
-                // If tried to access directly without credentials or guest session
                 return <HomePage />;
             default: return <HomePage />;
         }
@@ -124,9 +180,31 @@ const App: React.FC = () => {
     return (
         <div className="min-h-screen flex flex-col bg-gradient-to-br from-cyan-600 via-teal-500 to-green-400 font-sans">
             <style>{`
-                /* ... animation styles ... */
+                @keyframes page-transition {
+                    0% { opacity: 0; transform: translateY(20px); }
+                    100% { opacity: 1; transform: translateY(0); }
+                }
+                .animate-page-transition { animation: page-transition 0.5s ease-in-out; }
+
+                @keyframes content-fade {
+                    0% { opacity: 0; }
+                    100% { opacity: 1; }
+                }
+                .animate-content-fade { animation: content-fade 0.5s ease-in-out; }
+
+                @keyframes modal-open {
+                    0% { opacity: 0; transform: scale(0.95); }
+                    100% { opacity: 1; transform: scale(1); }
+                }
+                .animate-modal-open { animation: modal-open 0.3s ease-out; }
+
+                @keyframes ai-pulse {
+                    0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(168, 85, 247, 0.4); }
+                    50% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(168, 85, 247, 0); }
+                }
+                .animate-ai-pulse { animation: ai-pulse 2.5s infinite; }
             `}</style>
-            <Header currentPage={currentPage} setCurrentPage={setCurrentPage} loggedInUser={loggedInUser} onSignOut={handleSignOut} />
+            <Header currentPage={currentPage} setCurrentPage={setCurrentPage} loggedInUser={loggedInUser} onSignOut={handleSignOut} alerts={alerts} onAlertClick={handleAlertClick} />
             <main className="flex-grow container mx-auto p-4 md:p-8 flex items-center justify-center">
                 <div key={currentPage} className="animate-page-transition w-full flex items-center justify-center">
                     {renderPage()}

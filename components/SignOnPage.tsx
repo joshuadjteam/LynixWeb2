@@ -38,7 +38,6 @@ const SignOnPage: React.FC<SignOnPageProps> = ({ onLoginSuccess }) => {
     };
 
     const handleTryOut = () => {
-        // FIX: Add missing properties to satisfy the User type for trial users.
         const trialUser: User = {
             id: 'trialuser',
             username: 'Guest User',
@@ -49,6 +48,7 @@ const SignOnPage: React.FC<SignOnPageProps> = ({ onLoginSuccess }) => {
             billing: { status: 'On Time', owes: 0 },
             chat_enabled: false,
             ai_enabled: false,
+            localmail_enabled: false,
         };
         onLoginSuccess(trialUser);
     };

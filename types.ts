@@ -7,6 +7,7 @@ export enum Page {
   Softphone = 'Softphone',
   LynxAI = 'LynxAI',
   Chat = 'Chat',
+  LocalMail = 'LocalMail',
 }
 
 export enum ProfileTab {
@@ -31,6 +32,7 @@ export interface User {
   };
   chat_enabled: boolean;
   ai_enabled: boolean;
+  localmail_enabled: boolean;
 }
 
 export interface ChatMessage {
@@ -44,6 +46,23 @@ export interface DirectMessage {
     recipient_id: string;
     text: string;
     timestamp: string;
+}
+
+export interface Alert {
+    sender_id: string;
+    sender_username: string;
+    message_snippet: string;
+}
+
+export interface LocalMailMessage {
+    id: number;
+    sender_id: string;
+    sender_username: string;
+    recipient_username: string;
+    subject: string;
+    body: string;
+    timestamp: string;
+    is_read: boolean;
 }
 
 export interface GuestSession {

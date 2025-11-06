@@ -81,6 +81,7 @@ const AdminPage: React.FC = () => {
         billing: { status: 'On Time', owes: 0 },
         chat_enabled: false,
         ai_enabled: false,
+        localmail_enabled: false,
     });
     setPassword('');
     setIsModalOpen(true);
@@ -89,7 +90,10 @@ const AdminPage: React.FC = () => {
   const openEditModal = (user: User) => {
     setModalMode('edit');
     setCurrentUser(user);
-    setFormData(JSON.parse(JSON.stringify(user)));
+    // Deep copy and ensure all keys exist
+    const userCopy = JSON.parse(JSON.stringify(user));
+    userCopy.localmail_enabled = userCopy.localmail_enabled || false;
+    setFormData(userCopy);
     setPassword('');
     setIsModalOpen(true);
   };
@@ -110,7 +114,7 @@ const AdminPage: React.FC = () => {
     setFormData((prev: any) => ({ ...prev, [name]: value }));
   };
 
-  const handleToggleChange = (name: 'chat_enabled' | 'ai_enabled', value: boolean) => {
+  const handleToggleChange = (name: 'chat_enabled' | 'ai_enabled' | 'localmail_enabled', value: boolean) => {
     setFormData((prev: any) => ({ ...prev, [name]: value }));
   };
 
@@ -146,6 +150,7 @@ const AdminPage: React.FC = () => {
             },
             chat_enabled: formData.chat_enabled,
             ai_enabled: formData.ai_enabled,
+            localmail_enabled: formData.localmail_enabled,
         },
         password: password
       };
@@ -196,9 +201,9 @@ const AdminPage: React.FC = () => {
             <tr>
               <th scope="col" className="px-6 py-4">Username</th>
               <th scope="col" className="px-6 py-4">Role</th>
-              <th scope="col" className="px-6 py-4">Email</th>
               <th scope="col" className="px-6 py-4">Chat</th>
               <th scope="col" className="px-6 py-4">AI</th>
+              <th scope="col" className="px-6 py-4">LocalMail</th>
               <th scope="col" className="px-6 py-4">Actions</th>
             </tr>
           </thead>
@@ -207,7 +212,6 @@ const AdminPage: React.FC = () => {
               <tr key={user.id} className="border-b border-gray-700 hover:bg-gray-700/50 transition">
                 <td className="whitespace-nowrap px-6 py-4 font-medium">{user.username}</td>
                 <td className="whitespace-nowrap px-6 py-4 capitalize">{user.role}</td>
-                <td className="whitespace-nowrap px-6 py-4">{user.email}</td>
                 <td className="whitespace-nowrap px-6 py-4">
                   <span className={`px-2 py-1 rounded-full text-xs font-bold ${user.chat_enabled ? 'bg-green-500/20 text-green-300' : 'bg-gray-600/50 text-gray-400'}`}>
                     {user.chat_enabled ? 'Enabled' : 'Disabled'}
@@ -216,6 +220,11 @@ const AdminPage: React.FC = () => {
                 <td className="whitespace-nowrap px-6 py-4">
                   <span className={`px-2 py-1 rounded-full text-xs font-bold ${user.ai_enabled ? 'bg-green-500/20 text-green-300' : 'bg-gray-600/50 text-gray-400'}`}>
                     {user.ai_enabled ? 'Enabled' : 'Disabled'}
+                  </span>
+                </td>
+                 <td className="whitespace-nowrap px-6 py-4">
+                  <span className={`px-2 py-1 rounded-full text-xs font-bold ${user.localmail_enabled ? 'bg-green-500/20 text-green-300' : 'bg-gray-600/50 text-gray-400'}`}>
+                    {user.localmail_enabled ? 'Enabled' : 'Disabled'}
                   </span>
                 </td>
                 <td className="whitespace-nowrap px-6 py-4 text-right space-x-2">
@@ -267,9 +276,10 @@ const AdminPage: React.FC = () => {
                 </div>
             </div>
             <h4 className="text-lg font-semibold pt-4 border-t border-gray-600">Features</h4>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <Toggle label="Enable Chat" enabled={formData.chat_enabled} onChange={(val) => handleToggleChange('chat_enabled', val)} />
                 <Toggle label="Enable AI" enabled={formData.ai_enabled} onChange={(val) => handleToggleChange('ai_enabled', val)} />
+                <Toggle label="Enable LocalMail" enabled={formData.localmail_enabled} onChange={(val) => handleToggleChange('localmail_enabled', val)} />
             </div>
             <h4 className="text-lg font-semibold pt-4 border-t border-gray-600">Plan</h4>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

@@ -1,12 +1,15 @@
-import React from 'react';
-import { Page, User } from '../types';
-import { LynixLogo, SoftphoneIcon, ChatIcon } from './icons';
+import React, { useState, useEffect, useRef } from 'react';
+import { Page, User, Alert } from '../types';
+import { LynixLogo, SoftphoneIcon, ChatIcon, MailIcon, BellIcon } from './icons';
+import AlertsDropdown from './AlertsDropdown';
 
 interface HeaderProps {
     currentPage: Page;
     setCurrentPage: (page: Page) => void;
     loggedInUser: User | null;
     onSignOut: () => void;
+    alerts: Alert[];
+    onAlertClick: (alert: Alert) => void;
 }
 
 const NavButton: React.FC<{
@@ -34,8 +37,21 @@ const NavButton: React.FC<{
 };
 
 
-const Header: React.FC<HeaderProps> = ({ currentPage, setCurrentPage, loggedInUser, onSignOut }) => {
+const Header: React.FC<HeaderProps> = ({ currentPage, setCurrentPage, loggedInUser, onSignOut, alerts, onAlertClick }) => {
     const baseButtonClasses = "px-4 py-2 rounded-lg text-white font-semibold transition-all duration-300 transform bg-gray-700 hover:bg-gray-600 hover:scale-105";
+    const [isAlertsOpen, setIsAlertsOpen] = useState(false);
+    const alertsRef = useRef<HTMLDivElement>(null);
+
+     useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (alertsRef.current && !alertsRef.current.contains(event.target as Node)) {
+                setIsAlertsOpen(false);
+            }
+        };
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, []);
+
     return (
         <header className="bg-gray-800 bg-opacity-70 backdrop-blur-sm text-white p-4 shadow-lg sticky top-0 z-50">
             <div className="container mx-auto flex justify-between items-center">
@@ -71,6 +87,11 @@ const Header: React.FC<HeaderProps> = ({ currentPage, setCurrentPage, loggedInUs
                             Chat
                         </NavButton>
                     )}
+                     {loggedInUser && loggedInUser.localmail_enabled && (
+                        <NavButton page={Page.LocalMail} currentPage={currentPage} setCurrentPage={setCurrentPage} icon={<MailIcon />}>
+                            LocalMail
+                        </NavButton>
+                    )}
                     <a 
                         href="https://sites.google.com/gcp.lynixity.x10.bz/myportal/home" 
                         target="_blank" 
@@ -95,6 +116,17 @@ const Header: React.FC<HeaderProps> = ({ currentPage, setCurrentPage, loggedInUs
                             <NavButton page={Page.Profile} currentPage={currentPage} setCurrentPage={setCurrentPage}>
                                 Profile
                             </NavButton>
+                             <div className="relative" ref={alertsRef}>
+                                <button onClick={() => setIsAlertsOpen(prev => !prev)} className="relative p-2 text-gray-300 hover:text-white transition">
+                                    <BellIcon />
+                                    {alerts.length > 0 && (
+                                        <span className="absolute top-0 right-0 h-4 w-4 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
+                                            {alerts.length}
+                                        </span>
+                                    )}
+                                </button>
+                                {isAlertsOpen && <AlertsDropdown alerts={alerts} onAlertClick={onAlertClick} onClose={() => setIsAlertsOpen(false)} />}
+                            </div>
                             <button onClick={onSignOut} className={`${baseButtonClasses} bg-purple-600 hover:bg-purple-700`}>
                                 Sign Out
                             </button>

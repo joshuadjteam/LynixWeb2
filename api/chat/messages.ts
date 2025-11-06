@@ -8,22 +8,37 @@ const pool = new Pool({
 export default async function handler(req: VercelRequest, res: VercelResponse) {
     // GET /api/chat/messages?senderId=...&recipientId=...
     if (req.method === 'GET') {
+        const client = await pool.connect();
         try {
             const { senderId, recipientId } = req.query;
             if (typeof senderId !== 'string' || typeof recipientId !== 'string') {
                 return res.status(400).json({ message: 'senderId and recipientId are required.' });
             }
+            
+            await client.query('BEGIN');
 
-            const { rows } = await pool.query(
+            const { rows } = await client.query(
                 `SELECT * FROM messages 
                  WHERE (sender_id = $1 AND recipient_id = $2) OR (sender_id = $2 AND recipient_id = $1)
                  ORDER BY timestamp ASC`,
                 [senderId, recipientId]
             );
+
+            // Mark fetched messages as read for the recipient
+            await client.query(
+                `UPDATE messages SET is_read = TRUE WHERE recipient_id = $1 AND sender_id = $2 AND is_read = FALSE`,
+                [senderId, recipientId]
+            );
+            
+            await client.query('COMMIT');
+
             return res.status(200).json(rows);
         } catch (error) {
+            await client.query('ROLLBACK');
             console.error('Error fetching messages:', error);
             return res.status(500).json({ message: 'Internal Server Error' });
+        } finally {
+            client.release();
         }
     }
 
@@ -35,8 +50,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 return res.status(400).json({ message: 'senderId, recipientId, and text are required.' });
             }
 
+            // Set is_read to false for new messages
             const { rows } = await pool.query(
-                'INSERT INTO messages (sender_id, recipient_id, text) VALUES ($1, $2, $3) RETURNING *',
+                'INSERT INTO messages (sender_id, recipient_id, text, is_read) VALUES ($1, $2, $3, FALSE) RETURNING *',
                 [senderId, recipientId, text]
             );
             return res.status(201).json(rows[0]);
