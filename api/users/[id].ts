@@ -8,6 +8,11 @@ const pool = new Pool({
 const SALT_ROUNDS = 10;
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
+    if (!process.env.POSTGRES_URL) {
+        console.error('FATAL: POSTGRES_URL environment variable is not set.');
+        return res.status(503).json({ message: 'Service Unavailable: Database connection is not configured.' });
+    }
+
     const { id } = req.query;
 
     if (typeof id !== 'string') {

@@ -8,6 +8,11 @@ const pool = new Pool({
 });
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
+    if (!process.env.POSTGRES_URL) {
+        console.error('FATAL: POSTGRES_URL environment variable is not set.');
+        return res.status(503).json({ message: 'Service Unavailable: Database connection is not configured.' });
+    }
+
     if (req.method !== 'POST') {
         res.setHeader('Allow', ['POST']);
         return res.status(405).end(`Method ${req.method} Not Allowed`);
