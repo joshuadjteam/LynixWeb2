@@ -41,9 +41,11 @@ const Header: React.FC<HeaderProps> = ({ currentPage, setCurrentPage, loggedInUs
                     className="flex items-center gap-3 cursor-pointer"
                     onClick={() => setCurrentPage(Page.Home)}
                 >
-                    <LynixLogo />
-                    <span className="text-xl font-bold hidden sm:block">Lynix</span>
-                    <h1 className="text-lg sm:text-2xl font-bold ml-4">Lynix Technology and Coding</h1>
+                    <div className="flex items-center gap-2 bg-blue-700 text-white font-semibold px-3 py-1.5 rounded-lg transition-transform hover:scale-105">
+                        <LynixLogo />
+                        <span className="text-xl font-bold">Lynix</span>
+                    </div>
+                    <h1 className="text-lg sm:text-2xl font-bold hidden sm:block">Lynix Technology and Coding</h1>
                 </div>
                 <nav className="flex items-center gap-2 md:gap-4">
                     <a 

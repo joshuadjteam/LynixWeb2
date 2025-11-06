@@ -2,16 +2,9 @@ import React from 'react';
 
 export const LynixLogo = () => (
   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <circle cx="12" cy="12" r="10" stroke="white" strokeWidth="2"/>
-    <path d="M12 2V22" stroke="white" strokeWidth="2" strokeLinecap="round"/>
-    <path d="M22 12L2 12" stroke="white" strokeWidth="2" strokeLinecap="round"/>
-    <circle cx="12" cy="12" r="4" fill="url(#grad1)"/>
-    <defs>
-      <radialGradient id="grad1" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
-        <stop offset="0%" style={{stopColor: 'rgb(56, 189, 248)', stopOpacity: 1}} />
-        <stop offset="100%" style={{stopColor: 'rgb(16, 185, 129)', stopOpacity: 1}} />
-      </radialGradient>
-    </defs>
+    <circle cx="12" cy="12" r="11" fill="#D1F2F8"/>
+    <polygon points="7,17 15,17 19,9 11,9" fill="#F86B6B" />
+    <polygon points="5,14 13,14 17,6 9,6" fill="#F98E4C" />
   </svg>
 );
 
