@@ -43,6 +43,15 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ user, onSignOut }) => {
     );
 
     const BillingTab: React.FC = () => {
+        if (!user.billing || !user.plan) {
+            return (
+                 <div>
+                    <h3 className="text-2xl font-bold mb-6">Billing & Plan</h3>
+                    <p className="text-gray-400">Billing or plan information is not available for this account. Please contact support.</p>
+                </div>
+            )
+        }
+
         const statusColor = {
             'On Time': 'text-green-400',
             'Overdue': 'text-yellow-400',
@@ -64,7 +73,7 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ user, onSignOut }) => {
                     <p><span className="font-semibold text-gray-400 w-32 inline-block">Plan Details:</span> {user.plan.details}</p>
                     <hr className="border-gray-600 my-4" />
                     <p><span className="font-semibold text-gray-400 w-32 inline-block">Status:</span> <span className={`font-bold ${statusColor}`}>{user.billing.status}</span></p>
-                    {user.billing.owes && <p><span className="font-semibold text-gray-400 w-32 inline-block">Amount Due:</span> <span className="font-bold text-yellow-400">${user.billing.owes.toFixed(2)}</span></p>}
+                    {user.billing.owes && user.billing.owes > 0 && <p><span className="font-semibold text-gray-400 w-32 inline-block">Amount Due:</span> <span className="font-bold text-yellow-400">${user.billing.owes.toFixed(2)}</span></p>}
                 </div>
             </div>
         );
@@ -163,7 +172,7 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ user, onSignOut }) => {
                     <nav className="space-y-2">
                         <TabButton tab={ProfileTab.Info} label="Info" icon={<UserIcon />} />
                         <TabButton tab={ProfileTab.Billing} label="Billing" icon={<BillingIcon />} />
-                        <TabButton tab={ProfileTab.AI} label="AI Portal" icon={<AIIcon />} disabled={user.billing.status === 'Suspended'} />
+                        <TabButton tab={ProfileTab.AI} label="AI Portal" icon={<AIIcon />} disabled={user.billing?.status === 'Suspended'} />
                     </nav>
                 </div>
                 <main className="w-full md:w-3/4 bg-gray-800/50 p-6 rounded-lg">
