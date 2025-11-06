@@ -68,6 +68,25 @@ const App: React.FC = () => {
 
     return (
         <div className="min-h-screen flex flex-col bg-gradient-to-br from-cyan-600 via-teal-500 to-green-400 font-sans">
+             <style>{`
+                @keyframes fadeInUp {
+                    from { opacity: 0; transform: translateY(20px); }
+                    to { opacity: 1; transform: translateY(0); }
+                }
+                .animate-fade-in-up { animation: fadeInUp 0.5s ease-out forwards; }
+
+                @keyframes pulse-slow {
+                    0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(168, 85, 247, 0.7); }
+                    50% { transform: scale(1.1); box-shadow: 0 0 0 10px rgba(168, 85, 247, 0); }
+                }
+                .animate-pulse-slow { animation: pulse-slow 2s infinite; }
+                
+                @keyframes fadeIn {
+                    from { opacity: 0; }
+                    to { opacity: 1; }
+                }
+                .animate-fade-in-fast { animation: fadeIn 0.3s ease-in-out forwards; }
+            `}</style>
             <Header 
                 currentPage={currentPage} 
                 setCurrentPage={handleSetCurrentPage} 
@@ -75,7 +94,9 @@ const App: React.FC = () => {
                 onSignOut={handleSignOut}
             />
             <main className="flex-grow container mx-auto p-4 md:p-8 flex items-center justify-center">
-                {renderPage()}
+                <div key={currentPage} className="animate-fade-in-up w-full flex items-center justify-center">
+                    {renderPage()}
+                </div>
             </main>
             <Footer toggleChat={toggleChat} />
             <GeminiChat isOpen={isChatOpen} onClose={toggleChat} />
