@@ -8,6 +8,7 @@ import ProfilePage from './components/ProfilePage';
 import AdminPage from './components/AdminPage';
 import Footer from './components/Footer';
 import GeminiChat from './components/GeminiChat';
+import SoftphonePage from './components/SoftphonePage';
 
 const App: React.FC = () => {
     const [currentPage, setCurrentPage] = useState<Page>(Page.Home);
@@ -46,6 +47,10 @@ const App: React.FC = () => {
                  return loggedInUser && loggedInUser.role === 'admin'
                     ? <AdminPage />
                     : <HomePage />;
+            case Page.Softphone:
+                 return loggedInUser 
+                    ? <SoftphonePage /> 
+                    : <SignOnPage onLoginSuccess={handleLoginSuccess} />;
             default:
                 return <HomePage />;
         }

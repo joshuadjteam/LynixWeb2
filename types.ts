@@ -4,6 +4,7 @@ export enum Page {
   SignOn = 'SignOn',
   Profile = 'Profile',
   Admin = 'Admin',
+  Softphone = 'Softphone',
 }
 
 export enum ProfileTab {

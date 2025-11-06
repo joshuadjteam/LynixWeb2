@@ -15,10 +15,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         return res.status(503).json({ message: 'Service Unavailable: Database connection is not configured.' });
     }
     
-    // GET /api/users - Fetch all users (except admin)
+    // GET /api/users - Fetch all users
     if (req.method === 'GET') {
         try {
-            const { rows } = await pool.query("SELECT id, username, role, plan, email, sip, billing FROM users WHERE role != 'admin'");
+            const { rows } = await pool.query("SELECT id, username, role, plan, email, sip, billing FROM users ORDER BY role, username");
             const users: User[] = rows.map(row => ({
                 ...row,
                 plan: typeof row.plan === 'string' ? JSON.parse(row.plan) : row.plan,

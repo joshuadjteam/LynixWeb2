@@ -1,6 +1,6 @@
 import React from 'react';
 import { Page, User } from '../types';
-import { LynixLogo } from './icons';
+import { LynixLogo, SoftphoneIcon } from './icons';
 
 interface HeaderProps {
     currentPage: Page;
@@ -67,6 +67,14 @@ const Header: React.FC<HeaderProps> = ({ currentPage, setCurrentPage, loggedInUs
                     >
                         MyPortal
                     </a>
+                    {loggedInUser && (
+                        <NavButton page={Page.Softphone} currentPage={currentPage} setCurrentPage={setCurrentPage}>
+                             <div className="flex items-center justify-center gap-2">
+                                <SoftphoneIcon />
+                                <span>Softphone</span>
+                            </div>
+                        </NavButton>
+                    )}
                     <NavButton page={Page.Contact} currentPage={currentPage} setCurrentPage={setCurrentPage}>
                         Contact Us
                     </NavButton>
