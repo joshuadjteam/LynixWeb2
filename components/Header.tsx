@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Page, User, Alert } from '../types';
-import { LynixLogo, SoftphoneIcon, ChatIcon, MailIcon, BellIcon } from './icons';
+import { LynixLogo, SoftphoneIcon, ChatIcon, MailIcon, BellIcon, NotepadIcon } from './icons';
 import AlertsDropdown from './AlertsDropdown';
 
 interface HeaderProps {
@@ -90,6 +90,11 @@ const Header: React.FC<HeaderProps> = ({ currentPage, setCurrentPage, loggedInUs
                      {loggedInUser && loggedInUser.localmail_enabled && (
                         <NavButton page={Page.LocalMail} currentPage={currentPage} setCurrentPage={setCurrentPage} icon={<MailIcon />}>
                             LocalMail
+                        </NavButton>
+                    )}
+                    {loggedInUser && (
+                        <NavButton page={Page.Notepad} currentPage={currentPage} setCurrentPage={setCurrentPage} icon={<NotepadIcon />}>
+                            Notepad
                         </NavButton>
                     )}
                     <a 

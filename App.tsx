@@ -11,6 +11,7 @@ import LynxAiPage from './components/LynxAiPage';
 import AiChoiceModal from './components/AiChoiceModal';
 import ChatPage from './components/ChatPage';
 import LocalMailPage from './components/LocalMailPage';
+import NotepadPage from './components/NotepadPage';
 import Footer from './components/Footer';
 
 const GUEST_SESSION_KEY = 'lynixGuestAiSession';
@@ -50,7 +51,11 @@ const App: React.FC = () => {
     const fetchAlerts = useCallback(async () => {
         if (!loggedInUser) return;
         try {
-            const response = await fetch('/api/chat/alerts');
+            const response = await fetch('/api/chat/alerts', {
+                headers: {
+                    'x-user-id': loggedInUser.id,
+                }
+            });
             if(response.ok) {
                 const data = await response.json();
                 setAlerts(data);
@@ -83,13 +88,7 @@ const App: React.FC = () => {
             const users = await res.json();
             const targetUser = users.find((u: User) => u.id === alert.sender_id);
             if (targetUser) {
-                 // Set the selected user in ChatPage's state somehow, or pass it via props.
-                 // For now, we just navigate. The chat page will fetch messages.
                  setCurrentPage(Page.Chat);
-                 // This requires ChatPage to be able to accept an initial user.
-                 // This is a complex state management problem. For now, we'll navigate
-                 // and the user can click on the contact.
-                 // A better solution would use a global state manager (like Redux or Context).
             }
              // Mark as read by re-fetching alerts (the API marks them as read)
             fetchAlerts();
@@ -165,6 +164,7 @@ const App: React.FC = () => {
             case Page.Softphone: return loggedInUser ? <SoftphonePage /> : <SignOnPage onLoginSuccess={handleLoginSuccess} />;
             case Page.Chat: return canAccessChat ? <ChatPage currentUser={loggedInUser} /> : <HomePage />;
             case Page.LocalMail: return canAccessLocalMail ? <LocalMailPage currentUser={loggedInUser} /> : <HomePage />;
+            case Page.Notepad: return loggedInUser ? <NotepadPage currentUser={loggedInUser} /> : <SignOnPage onLoginSuccess={handleLoginSuccess} />;
             case Page.LynxAI:
                 if (canAccessAI) {
                     return <LynxAiPage user={loggedInUser} />;

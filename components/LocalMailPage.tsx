@@ -13,7 +13,9 @@ const LocalMailPage: React.FC<{ currentUser: User }> = ({ currentUser }) => {
     const fetchMessages = useCallback(async () => {
         setIsLoading(true);
         try {
-            const response = await fetch(`/api/localmail/messages?view=${view}`);
+            const response = await fetch(`/api/localmail/messages?view=${view}`, {
+                headers: { 'x-user-id': currentUser.id }
+            });
             if (response.ok) {
                 const data = await response.json();
                 setMessages(data);
@@ -23,7 +25,7 @@ const LocalMailPage: React.FC<{ currentUser: User }> = ({ currentUser }) => {
         } finally {
             setIsLoading(false);
         }
-    }, [view]);
+    }, [view, currentUser.id]);
 
     useEffect(() => {
         fetchMessages();
@@ -91,7 +93,10 @@ const LocalMailPage: React.FC<{ currentUser: User }> = ({ currentUser }) => {
             try {
                 const response = await fetch('/api/localmail/messages', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'x-user-id': currentUser.id
+                    },
                     body: JSON.stringify({ recipients: recipients.split(',').map(r => r.trim()), subject, body })
                 });
                 if (response.ok) {

@@ -8,6 +8,7 @@ export enum Page {
   LynxAI = 'LynxAI',
   Chat = 'Chat',
   LocalMail = 'LocalMail',
+  Notepad = 'Notepad',
 }
 
 export enum ProfileTab {
