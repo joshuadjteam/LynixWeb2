@@ -1,18 +1,25 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { User, ChatMessage } from '../types';
+import { User, ChatMessage, GuestSession } from '../types';
 import { runChat } from '../services/geminiService';
 import { LynxAiLogo, SimpleUserIcon, SendIcon } from './icons';
 
 interface LynxAiPageProps {
-    user: User;
+    user?: User | null;
+    guestSession?: GuestSession;
+    onGuestMessageSent?: () => void;
 }
 
-const LynxAiPage: React.FC<LynxAiPageProps> = ({ user }) => {
+const LynxAiPage: React.FC<LynxAiPageProps> = ({ user, guestSession, onGuestMessageSent }) => {
     const [messages, setMessages] = useState<ChatMessage[]>([]);
     const [input, setInput] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const messagesEndRef = useRef<HTMLDivElement>(null);
+    
+    const isGuestMode = !user;
     const hasStartedChat = messages.length > 0;
+    const guestResponsesLeft = guestSession?.responsesLeft ?? 0;
+    const isInputDisabled = isLoading || (isGuestMode && guestResponsesLeft <= 0);
+    const username = user?.username || 'Guest';
 
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -23,18 +30,21 @@ const LynxAiPage: React.FC<LynxAiPageProps> = ({ user }) => {
     }, [messages]);
 
     useEffect(() => {
-        // Initial greeting from Mason
         const fetchGreeting = async () => {
             setIsLoading(true);
-            const greeting = await runChat(`Please introduce yourself to ${user.username}.`);
+            const greeting = await runChat(`Please introduce yourself to ${username}.`);
             setMessages([{ sender: 'gemini', text: greeting }]);
             setIsLoading(false);
         };
         fetchGreeting();
-    }, [user.username]);
+    }, [username]);
 
     const handleSend = async () => {
-        if (input.trim() === '' || isLoading) return;
+        if (input.trim() === '' || isInputDisabled) return;
+
+        if (isGuestMode) {
+            onGuestMessageSent?.();
+        }
 
         const userMessage: ChatMessage = { sender: 'user', text: input };
         setMessages(prev => [...prev, userMessage]);
@@ -59,19 +69,24 @@ const LynxAiPage: React.FC<LynxAiPageProps> = ({ user }) => {
             handleSend();
         }
     };
+    
+    const getPlaceholderText = () => {
+        if (isGuestMode && guestResponsesLeft <= 0) {
+            return "You've reached your message limit.";
+        }
+        return "Type to message LynxAI";
+    };
 
     return (
         <div className="w-full h-[calc(100vh-150px)] bg-black flex flex-col text-white font-sans">
-            {/* Header */}
             <header className="w-full p-4 bg-gray-900/50 flex justify-between items-center">
-                <div className="text-gray-400">INSERT MENU BAR HERE</div>
-                 <div className="flex items-center gap-3">
-                    <span className="font-semibold">{user.username}</span>
+                <div className="text-gray-400 font-mono text-sm">LynxAI powered by Gemini 2.5 Flash</div>
+                <div className="flex items-center gap-3">
+                    <span className="font-semibold">{username}</span>
                     <SimpleUserIcon />
                 </div>
             </header>
 
-            {/* Main Content */}
             <main className="flex-1 flex flex-col items-center justify-center p-4 overflow-hidden">
                 {!hasStartedChat ? (
                     <div className="text-center animate-content-fade">
@@ -81,7 +96,7 @@ const LynxAiPage: React.FC<LynxAiPageProps> = ({ user }) => {
                 ) : (
                     <div className="w-full max-w-4xl h-full overflow-y-auto space-y-4 pr-2">
                         {messages.map((msg, index) => (
-                            <div key={index} className={`flex items-start gap-4 ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
+                             <div key={index} className={`flex items-start gap-4 ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
                                 {msg.sender === 'gemini' && <div className="w-8 h-8 bg-purple-600 rounded-full flex-shrink-0"></div>}
                                 <div className={`max-w-xl p-4 rounded-2xl ${msg.sender === 'user' ? 'bg-blue-600' : 'bg-gray-800'}`}>
                                     <p className="whitespace-pre-wrap">{msg.text}</p>
@@ -89,7 +104,7 @@ const LynxAiPage: React.FC<LynxAiPageProps> = ({ user }) => {
                             </div>
                         ))}
                          {isLoading && (
-                            <div className="flex items-start gap-4 justify-start">
+                           <div className="flex items-start gap-4 justify-start">
                                 <div className="w-8 h-8 bg-purple-600 rounded-full flex-shrink-0"></div>
                                 <div className="max-w-xl p-4 rounded-2xl bg-gray-800">
                                     <div className="flex items-center space-x-2">
@@ -105,19 +120,19 @@ const LynxAiPage: React.FC<LynxAiPageProps> = ({ user }) => {
                 )}
             </main>
 
-            {/* Footer Input */}
-            <footer className="w-full p-4 flex justify-center">
+            <footer className="w-full p-4 flex flex-col items-center">
+                {isGuestMode && <p className="text-sm text-gray-400 mb-2">Responses left: {guestResponsesLeft}</p>}
                 <div className="w-full max-w-4xl flex items-center bg-gray-800 rounded-xl p-2">
                     <input
                         type="text"
                         value={input}
                         onChange={(e) => setInput(e.target.value)}
                         onKeyDown={handleKeyPress}
-                        placeholder="Type to message LynxAI"
-                        className="flex-1 bg-transparent p-3 text-white focus:outline-none placeholder-gray-400"
-                        disabled={isLoading}
+                        placeholder={getPlaceholderText()}
+                        className="flex-1 bg-transparent p-3 text-white focus:outline-none placeholder-gray-400 disabled:placeholder-gray-600"
+                        disabled={isInputDisabled}
                     />
-                    <button onClick={handleSend} disabled={isLoading || input.trim() === ''} className="p-3 text-white disabled:text-gray-500 hover:text-blue-400 transition rounded-full bg-gray-700 disabled:bg-gray-800">
+                    <button onClick={handleSend} disabled={isInputDisabled || input.trim() === ''} className="p-3 text-white disabled:text-gray-500 hover:text-blue-400 transition rounded-full bg-gray-700 disabled:bg-gray-800">
                         <SendIcon />
                     </button>
                 </div>

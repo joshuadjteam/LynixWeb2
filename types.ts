@@ -34,3 +34,8 @@ export interface ChatMessage {
   sender: 'user' | 'gemini';
   text: string;
 }
+
+export interface GuestSession {
+    responsesLeft: number;
+    resetTime: number | null;
+}
