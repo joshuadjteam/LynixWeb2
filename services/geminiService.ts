@@ -1,15 +1,11 @@
-
 import { GoogleGenAI } from "@google/genai";
 
-// Assume process.env.API_KEY is available in the environment
-if (!process.env.API_KEY) {
-  console.warn("API_KEY environment variable not set. Gemini API calls will fail.");
-}
+const API_KEY = "AIzaSyCvPM3A1IdxuczsncLX9RgmbuxytnC5yE0";
 
-const getAi = () => new GoogleGenAI({ apiKey: process.env.API_KEY as string });
+const getAi = () => new GoogleGenAI({ apiKey: API_KEY });
 
 export const runChat = async (prompt: string): Promise<string> => {
-  if (!process.env.API_KEY) {
+  if (!API_KEY) {
     return "API key not configured. Please set the API_KEY environment variable.";
   }
   try {
