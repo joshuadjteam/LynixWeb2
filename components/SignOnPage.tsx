@@ -39,6 +39,15 @@ const SignOnPage: React.FC<SignOnPageProps> = ({ onLoginSuccess }) => {
 
     return (
         <div className="flex flex-col items-center justify-center text-white p-6">
+            <style>{`
+                input:-webkit-autofill,
+                input:-webkit-autofill:hover, 
+                input:-webkit-autofill:focus, 
+                input:-webkit-autofill:active {
+                    -webkit-box-shadow: 0 0 0 30px #374151 inset !important; /* bg-gray-700 */
+                    -webkit-text-fill-color: #ffffff !important;
+                }
+            `}</style>
             <div className="w-full max-w-md bg-black bg-opacity-30 p-8 rounded-xl shadow-2xl border-2 border-purple-500/50 backdrop-blur-sm">
                 <h2 className="text-2xl md:text-3xl font-bold text-center mb-4">Access Your Lynix Account</h2>
                 <p className="text-center text-gray-200 mb-8">

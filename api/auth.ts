@@ -56,6 +56,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     } catch (error) {
         console.error('Authentication error:', error);
-        return res.status(500).json({ message: 'Internal Server Error' });
+        const errorMessage = error instanceof Error ? error.message : 'An unknown internal error occurred.';
+        return res.status(500).json({ message: errorMessage });
     }
 }

@@ -27,7 +27,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             return res.status(200).json(users);
         } catch (error) {
             console.error('Error fetching users:', error);
-            return res.status(500).json({ message: 'Internal Server Error' });
+            const errorMessage = error instanceof Error ? error.message : 'An unknown internal error occurred.';
+            return res.status(500).json({ message: errorMessage });
         }
     }
 
@@ -66,7 +67,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             if (error.code === '23505') { // Unique constraint violation
                  return res.status(409).json({ message: 'Username or email already exists.' });
             }
-            return res.status(500).json({ message: 'Internal Server Error' });
+            const errorMessage = error instanceof Error ? error.message : 'An unknown internal error occurred.';
+            return res.status(500).json({ message: errorMessage });
         }
     }
 
