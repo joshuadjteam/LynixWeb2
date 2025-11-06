@@ -16,7 +16,7 @@ const SoftphonePage: React.FC = () => {
             </div>
             <div className="flex-grow w-full h-full rounded-lg overflow-hidden">
                 <iframe
-                    src="https://tryit.jssip.net/"
+                    src="https://tryit.iptel.org/"
                     className="w-full h-full border-0"
                     title="JsSIP Softphone Client"
                     allow="microphone"
