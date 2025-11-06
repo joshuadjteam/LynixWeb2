@@ -69,23 +69,29 @@ const App: React.FC = () => {
     return (
         <div className="min-h-screen flex flex-col bg-gradient-to-br from-cyan-600 via-teal-500 to-green-400 font-sans">
              <style>{`
-                @keyframes fadeInUp {
-                    from { opacity: 0; transform: translateY(20px); }
+                @keyframes pageTransition {
+                    from { opacity: 0; transform: translateY(10px); }
                     to { opacity: 1; transform: translateY(0); }
                 }
-                .animate-fade-in-up { animation: fadeInUp 0.5s ease-out forwards; }
+                .animate-page-transition { animation: pageTransition 0.7s ease-in-out forwards; }
 
-                @keyframes pulse-slow {
-                    0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(168, 85, 247, 0.7); }
-                    50% { transform: scale(1.1); box-shadow: 0 0 0 10px rgba(168, 85, 247, 0); }
+                @keyframes aiPulse {
+                    0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(168, 85, 247, 0.6); }
+                    50% { transform: scale(1.08); box-shadow: 0 0 0 12px rgba(168, 85, 247, 0); }
                 }
-                .animate-pulse-slow { animation: pulse-slow 2s infinite; }
+                .animate-ai-pulse { animation: aiPulse 3s infinite ease-in-out; }
                 
-                @keyframes fadeIn {
+                @keyframes contentFade {
                     from { opacity: 0; }
                     to { opacity: 1; }
                 }
-                .animate-fade-in-fast { animation: fadeIn 0.3s ease-in-out forwards; }
+                .animate-content-fade { animation: contentFade 0.5s ease-in-out forwards; }
+
+                @keyframes modalOpen {
+                    from { opacity: 0; transform: scale(0.97); }
+                    to { opacity: 1; transform: scale(1); }
+                }
+                .animate-modal-open { animation: modalOpen 0.3s ease-out forwards; }
             `}</style>
             <Header 
                 currentPage={currentPage} 
@@ -94,7 +100,7 @@ const App: React.FC = () => {
                 onSignOut={handleSignOut}
             />
             <main className="flex-grow container mx-auto p-4 md:p-8 flex items-center justify-center">
-                <div key={currentPage} className="animate-fade-in-up w-full flex items-center justify-center">
+                <div key={currentPage} className="animate-page-transition w-full flex items-center justify-center">
                     {renderPage()}
                 </div>
             </main>

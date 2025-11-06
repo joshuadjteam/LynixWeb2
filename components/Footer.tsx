@@ -21,7 +21,7 @@ const Footer: React.FC<FooterProps> = ({ toggleChat }) => {
             </footer>
             <button
                 onClick={toggleChat}
-                className="fixed bottom-6 right-6 bg-gray-800 text-white p-4 rounded-full shadow-lg hover:bg-purple-600 transition-all duration-300 z-50 animate-pulse-slow"
+                className="fixed bottom-6 right-6 bg-gray-800 text-white p-4 rounded-full shadow-lg hover:bg-purple-600 transition-all duration-300 z-50 animate-ai-pulse"
                 aria-label="Open AI Assistant"
             >
                 <QuestionMarkIcon />

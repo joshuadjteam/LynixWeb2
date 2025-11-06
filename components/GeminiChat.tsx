@@ -56,7 +56,7 @@ const GeminiChat: React.FC<GeminiChatProps> = ({ isOpen, onClose }) => {
     return (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4" onClick={onClose}>
             <div 
-                className="bg-gray-800 rounded-2xl shadow-2xl w-full max-w-lg h-[80vh] flex flex-col relative transform transition-all duration-300 scale-95 animate-fade-in"
+                className="bg-gray-800 rounded-2xl shadow-2xl w-full max-w-lg h-[80vh] flex flex-col relative transform transition-all duration-300 scale-95 animate-modal-open"
                 onClick={(e) => e.stopPropagation()}
             >
                 <div className="flex justify-between items-center p-4 border-b border-gray-700">
@@ -103,13 +103,6 @@ const GeminiChat: React.FC<GeminiChatProps> = ({ isOpen, onClose }) => {
                     </div>
                 </div>
             </div>
-            <style>{`
-                @keyframes fade-in {
-                    from { opacity: 0; transform: scale(0.9); }
-                    to { opacity: 1; transform: scale(1); }
-                }
-                .animate-fade-in { animation: fade-in 0.3s ease-out forwards; }
-            `}</style>
         </div>
     );
 };

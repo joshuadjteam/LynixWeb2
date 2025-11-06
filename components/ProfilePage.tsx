@@ -176,7 +176,7 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ user, onSignOut }) => {
                     </nav>
                 </div>
                 <main className="w-full md:w-3/4 bg-gray-800/50 p-6 rounded-lg">
-                    <div key={activeTab} className="animate-fade-in-fast">
+                    <div key={activeTab} className="animate-content-fade">
                         {renderContent()}
                     </div>
                 </main>
