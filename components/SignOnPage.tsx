@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { User } from '../types';
-import { authenticateUser } from '../data/users';
 
 interface SignOnPageProps {
     onLoginSuccess: (user: User) => void;
@@ -10,16 +9,31 @@ const SignOnPage: React.FC<SignOnPageProps> = ({ onLoginSuccess }) => {
     const [login, setLogin] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setError('');
-        const user = authenticateUser(login, password);
+        setIsLoading(true);
 
-        if (user) {
-            onLoginSuccess(user);
-        } else {
-            setError('Invalid username or password. Please try again.');
+        try {
+            const response = await fetch('/api/auth', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username: login, password: password }),
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                onLoginSuccess(data);
+            } else {
+                setError(data.message || 'Invalid username or password. Please try again.');
+            }
+        } catch (err) {
+            setError('Failed to connect to the server. Please try again later.');
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -41,6 +55,7 @@ const SignOnPage: React.FC<SignOnPageProps> = ({ onLoginSuccess }) => {
                             onChange={(e) => setLogin(e.target.value)}
                             className="flex-1 bg-gray-700 text-white p-3 rounded-md border border-gray-600 focus:ring-2 focus:ring-purple-500 focus:outline-none transition"
                             placeholder="Enter your ID"
+                            disabled={isLoading}
                         />
                     </div>
                     <div className="flex items-center space-x-4">
@@ -52,14 +67,16 @@ const SignOnPage: React.FC<SignOnPageProps> = ({ onLoginSuccess }) => {
                             onChange={(e) => setPassword(e.target.value)}
                             className="flex-1 bg-gray-700 text-white p-3 rounded-md border border-gray-600 focus:ring-2 focus:ring-purple-500 focus:outline-none transition"
                             placeholder="Enter your password"
+                            disabled={isLoading}
                         />
                     </div>
                      <div className="pt-4">
                         <button 
                             type="submit"
-                            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg transition duration-300 transform hover:scale-105"
+                            disabled={isLoading}
+                            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg transition duration-300 transform hover:scale-105 disabled:bg-gray-500 disabled:cursor-not-allowed"
                         >
-                            Sign In
+                            {isLoading ? 'Signing In...' : 'Sign In'}
                         </button>
                     </div>
                 </form>

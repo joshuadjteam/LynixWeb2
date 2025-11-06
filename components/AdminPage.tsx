@@ -1,7 +1,27 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { User } from '../types';
-import { getAllUsers, addUser, updateUser, deleteUser, updateUserPassword } from '../data/users';
 import { CloseIcon } from './icons';
+
+// Moved Modal component outside of AdminPage to prevent re-creation on each render,
+// which fixes the input focus loss issue.
+const Modal: React.FC<{ title: string; onClose: () => void; children: React.ReactNode }> = ({ children, title, onClose }) => (
+  <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-[100] p-4 animate-fade-in-fast">
+    <div className="bg-gray-800 rounded-2xl shadow-2xl w-full max-w-2xl flex flex-col relative" onClick={(e) => e.stopPropagation()}>
+      <div className="flex justify-between items-center p-4 border-b border-gray-700">
+          <h3 className="text-xl font-bold text-white">{title}</h3>
+          <button onClick={onClose} className="text-gray-400 hover:text-white"><CloseIcon /></button>
+      </div>
+      <div className="p-6">{children}</div>
+    </div>
+     <style>{`
+      @keyframes fade-in-fast {
+        from { opacity: 0; transform: scale(0.95); }
+        to { opacity: 1; transform: scale(1); }
+      }
+      .animate-fade-in-fast { animation: fade-in-fast 0.2s ease-out forwards; }
+    `}</style>
+  </div>
+);
 
 const AdminPage: React.FC = () => {
   const [users, setUsers] = useState<User[]>([]);
@@ -13,10 +33,23 @@ const AdminPage: React.FC = () => {
   const [password, setPassword] = useState('');
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
   
-  const fetchUsers = useCallback(() => {
+  const fetchUsers = useCallback(async () => {
     setIsLoading(true);
-    setUsers(getAllUsers());
-    setIsLoading(false);
+    try {
+        const response = await fetch('/api/users');
+        if (response.ok) {
+            const data = await response.json();
+            setUsers(data);
+        } else {
+            console.error('Failed to fetch users');
+            setUsers([]);
+        }
+    } catch (error) {
+        console.error('Error fetching users:', error);
+        setUsers([]);
+    } finally {
+        setIsLoading(false);
+    }
   }, []);
 
   useEffect(() => {
@@ -73,61 +106,57 @@ const AdminPage: React.FC = () => {
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (modalMode === 'add') {
-      const newUser: Omit<User, 'id'> = {
-        username: formData.username,
-        email: formData.email,
-        sip: formData.sip,
-        role: 'user',
-        plan: {
-            name: formData.plan.name,
-            cost: formData.plan.cost,
-            details: formData.plan.details,
+      const newUserPayload = {
+        userData: {
+            username: formData.username,
+            email: formData.email,
+            sip: formData.sip,
+            role: 'user',
+            plan: {
+                name: formData.plan.name,
+                cost: formData.plan.cost,
+                details: formData.plan.details,
+            },
+            billing: {
+                status: formData.billing.status,
+                owes: Number(formData.billing.owes) || 0,
+            },
         },
-        billing: {
-            status: formData.billing.status,
-            owes: Number(formData.billing.owes) || 0,
-        },
+        password: password
       };
-      addUser(newUser, password);
+      await fetch('/api/users', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newUserPayload),
+      });
     } else if (currentUser) {
-      updateUser(currentUser.id, formData);
+      await fetch(`/api/users/${currentUser.id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(formData),
+      });
       if(password.trim() !== ''){
-        updateUserPassword(currentUser.id, password);
+        await fetch(`/api/users/${currentUser.id}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ password }),
+        });
       }
     }
     fetchUsers();
     closeModal();
   };
   
-  const handleDelete = () => {
+  const handleDelete = async () => {
     if (currentUser) {
-      deleteUser(currentUser.id);
+      await fetch(`/api/users/${currentUser.id}`, { method: 'DELETE' });
       fetchUsers();
       closeModal();
     }
   };
-
-  const Modal: React.FC<{ title: string; onClose: () => void; children: React.ReactNode }> = ({ children, title, onClose }) => (
-    <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-[100] p-4 animate-fade-in-fast">
-      <div className="bg-gray-800 rounded-2xl shadow-2xl w-full max-w-2xl flex flex-col relative" onClick={(e) => e.stopPropagation()}>
-        <div className="flex justify-between items-center p-4 border-b border-gray-700">
-            <h3 className="text-xl font-bold text-white">{title}</h3>
-            <button onClick={onClose} className="text-gray-400 hover:text-white"><CloseIcon /></button>
-        </div>
-        <div className="p-6">{children}</div>
-      </div>
-       <style>{`
-        @keyframes fade-in-fast {
-          from { opacity: 0; transform: scale(0.95); }
-          to { opacity: 1; transform: scale(1); }
-        }
-        .animate-fade-in-fast { animation: fade-in-fast 0.2s ease-out forwards; }
-      `}</style>
-    </div>
-  );
   
   return (
     <div className="w-full max-w-7xl mx-auto bg-black bg-opacity-30 p-8 rounded-xl shadow-2xl border-2 border-purple-500/50 backdrop-blur-sm text-white">
@@ -138,7 +167,7 @@ const AdminPage: React.FC = () => {
         </button>
       </div>
       
-      {isLoading ? <div className="text-center py-8">Loading...</div> : (
+      {isLoading ? <div className="text-center py-8">Loading users from database...</div> : (
       <div className="overflow-x-auto bg-gray-800/50 rounded-lg">
         <table className="min-w-full text-left text-sm font-light">
           <thead className="border-b border-gray-600 font-medium">
@@ -171,9 +200,9 @@ const AdminPage: React.FC = () => {
                 </td>
               </tr>
             ))}
-             {users.length === 0 && (
+             {users.length === 0 && !isLoading && (
                 <tr>
-                    <td colSpan={5} className="text-center py-8 text-gray-400">No users to display.</td>
+                    <td colSpan={5} className="text-center py-8 text-gray-400">No users found in the database.</td>
                 </tr>
              )}
           </tbody>
