@@ -37,16 +37,19 @@ const Header: React.FC<HeaderProps> = ({ currentPage, setCurrentPage, loggedInUs
     return (
         <header className="bg-gray-800 bg-opacity-70 backdrop-blur-sm text-white p-4 shadow-lg sticky top-0 z-50">
             <div className="container mx-auto flex justify-between items-center">
-                <div 
-                    className="flex items-center gap-3 cursor-pointer"
-                    onClick={() => setCurrentPage(Page.Home)}
-                >
-                    <div className="flex items-center gap-2 bg-blue-700 text-white font-semibold px-3 py-1.5 rounded-lg transition-transform hover:scale-105">
-                        <LynixLogo />
-                        <span className="text-xl font-bold">Lynix</span>
+                <div className="flex items-center gap-4">
+                    <div 
+                        className="flex items-center gap-3 cursor-pointer"
+                        onClick={() => setCurrentPage(Page.Home)}
+                    >
+                        <div className="flex items-center gap-2 bg-blue-700 text-white font-semibold px-3 py-1.5 rounded-lg transition-transform hover:scale-105">
+                            <LynixLogo />
+                            <span className="text-xl font-bold">Lynix</span>
+                        </div>
                     </div>
                     <h1 className="text-lg sm:text-2xl font-bold hidden sm:block">Lynix Technology and Coding</h1>
                 </div>
+                
                 <nav className="flex items-center gap-2 md:gap-4">
                     <a 
                         href="https://darshanjoshuakesavaruban.fwscheckout.com/" 
