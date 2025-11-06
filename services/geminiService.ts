@@ -1,32 +1,26 @@
-import { GoogleGenAI } from "@google/genai";
-
-const getAi = () => {
-    if (!process.env.API_KEY) {
-        throw new Error("API_KEY environment variable not set.");
-    }
-    return new GoogleGenAI({ apiKey: process.env.API_KEY });
-}
-
 export const runChat = async (prompt: string): Promise<string> => {
   try {
-    const ai = getAi();
-    const response = await ai.models.generateContent({
-      model: 'gemini-2.5-flash',
-      contents: prompt,
-      config: {
-        systemInstruction: "You are a helpful assistant for Lynix, a technology and coding company. Your name is Lyra. Be friendly, concise, and helpful."
-      }
+    const response = await fetch('/api/gemini', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ prompt }),
     });
-    return response.text;
-  } catch (error) {
-    console.error("Gemini API call failed:", error);
-    if (error instanceof Error) {
-        // Provide a more user-friendly message for common API key issues
-        if (error.message.includes('API key not valid')) {
-            return "The AI assistant is currently unavailable due to a configuration issue. Please try again later.";
-        }
-        return `An error occurred while contacting the AI assistant: ${error.message}`;
+
+    const data = await response.json();
+
+    if (response.ok) {
+        return data.text;
+    } else {
+        console.error("API proxy call failed:", data.message);
+        return data.message || "An error occurred while contacting the AI assistant.";
     }
-    return "An unknown error occurred while contacting the AI assistant.";
+  } catch (error) {
+    console.error("Failed to connect to the backend AI service:", error);
+    if (error instanceof Error) {
+        return `Failed to connect to the AI assistant: ${error.message}`;
+    }
+    return "Failed to connect to the AI assistant due to an unknown network error.";
   }
 };
