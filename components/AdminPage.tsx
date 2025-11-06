@@ -56,6 +56,7 @@ const AdminPage: React.FC = () => {
         username: '',
         email: '',
         sip: '',
+        role: 'standard',
         plan: { name: '', cost: '', details: '' },
         billing: { status: 'On Time', owes: 0 }
     });
@@ -107,7 +108,7 @@ const AdminPage: React.FC = () => {
             username: formData.username,
             email: formData.email,
             sip: formData.sip,
-            role: 'user',
+            role: formData.role,
             plan: {
                 name: formData.plan.name,
                 cost: formData.plan.cost,
@@ -166,6 +167,7 @@ const AdminPage: React.FC = () => {
           <thead className="border-b border-gray-600 font-medium">
             <tr>
               <th scope="col" className="px-6 py-4">Username</th>
+              <th scope="col" className="px-6 py-4">Role</th>
               <th scope="col" className="px-6 py-4">Email</th>
               <th scope="col" className="px-6 py-4">Plan</th>
               <th scope="col" className="px-6 py-4">Billing Status</th>
@@ -176,6 +178,7 @@ const AdminPage: React.FC = () => {
             {users.map(user => (
               <tr key={user.id} className="border-b border-gray-700 hover:bg-gray-700/50 transition">
                 <td className="whitespace-nowrap px-6 py-4 font-medium">{user.username}</td>
+                <td className="whitespace-nowrap px-6 py-4 capitalize">{user.role}</td>
                 <td className="whitespace-nowrap px-6 py-4">{user.email}</td>
                 <td className="whitespace-nowrap px-6 py-4">{user.plan.name}</td>
                 <td className="whitespace-nowrap px-6 py-4">
@@ -195,7 +198,7 @@ const AdminPage: React.FC = () => {
             ))}
              {users.length === 0 && !isLoading && (
                 <tr>
-                    <td colSpan={5} className="text-center py-8 text-gray-400">No users found in the database.</td>
+                    <td colSpan={6} className="text-center py-8 text-gray-400">No users found in the database.</td>
                 </tr>
              )}
           </tbody>
@@ -206,9 +209,20 @@ const AdminPage: React.FC = () => {
       {isModalOpen && formData.plan && formData.billing && (
         <Modal title={modalMode === 'add' ? 'Add New User' : `Edit ${currentUser?.username}`} onClose={closeModal}>
           <form onSubmit={handleSubmit} className="space-y-4 max-h-[70vh] overflow-y-auto pr-2">
-            <div>
-              <label className="block text-sm font-medium text-gray-300">Username</label>
-              <input type="text" name="username" value={formData.username} onChange={handleInputChange} required className="mt-1 block w-full bg-gray-700 border border-gray-600 rounded-md shadow-sm py-2 px-3 text-white focus:outline-none focus:ring-purple-500 focus:border-purple-500" />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-300">Username</label>
+                <input type="text" name="username" value={formData.username} onChange={handleInputChange} required className="mt-1 block w-full bg-gray-700 border border-gray-600 rounded-md shadow-sm py-2 px-3 text-white focus:outline-none focus:ring-purple-500 focus:border-purple-500" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-300">Role</label>
+                <select name="role" value={formData.role} onChange={handleInputChange} className="mt-1 block w-full bg-gray-700 border border-gray-600 rounded-md shadow-sm py-2 px-3 text-white focus:outline-none focus:ring-purple-500 focus:border-purple-500">
+                  <option value="standard">Standard</option>
+                  <option value="trial">Trial</option>
+                  <option value="guest">Guest</option>
+                  <option value="admin">Admin</option>
+                </select>
+              </div>
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-300">Password ({modalMode === 'edit' ? 'leave blank to keep current' : 'required'})</label>

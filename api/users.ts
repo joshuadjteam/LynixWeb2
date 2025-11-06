@@ -36,7 +36,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (req.method === 'POST') {
         try {
             const { userData, password } = req.body;
-            if (!userData || !password || !userData.username || !userData.email) {
+            if (!userData || !password || !userData.username || !userData.email || !userData.role) {
                 return res.status(400).json({ message: 'Missing required fields.' });
             }
 
@@ -52,7 +52,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 newId, 
                 userData.username, 
                 passwordHash, 
-                'user', 
+                userData.role, 
                 JSON.stringify(userData.plan), 
                 userData.email, 
                 userData.sip, 

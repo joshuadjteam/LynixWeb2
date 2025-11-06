@@ -15,7 +15,7 @@ export enum ProfileTab {
 export interface User {
   id: string;
   username: string;
-  role: 'user' | 'admin';
+  role: 'admin' | 'standard' | 'trial' | 'guest';
   plan: {
     name: string;
     cost: string;

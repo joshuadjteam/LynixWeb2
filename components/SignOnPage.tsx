@@ -37,6 +37,19 @@ const SignOnPage: React.FC<SignOnPageProps> = ({ onLoginSuccess }) => {
         }
     };
 
+    const handleTryOut = () => {
+        const trialUser: User = {
+            id: 'trialuser',
+            username: 'Guest User',
+            role: 'trial',
+            plan: { name: 'Trial Plan', cost: 'Free', details: 'Limited access to explore features.' },
+            email: 'guest@lynixity.x10.bz',
+            sip: 'N/A',
+            billing: { status: 'On Time', owes: 0 },
+        };
+        onLoginSuccess(trialUser);
+    };
+
     return (
         <div className="flex flex-col items-center justify-center text-white p-6">
             <style>{`
@@ -79,13 +92,21 @@ const SignOnPage: React.FC<SignOnPageProps> = ({ onLoginSuccess }) => {
                             disabled={isLoading}
                         />
                     </div>
-                     <div className="pt-4">
+                     <div className="pt-4 space-y-3">
                         <button 
                             type="submit"
                             disabled={isLoading}
                             className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg transition duration-300 transform hover:scale-105 disabled:bg-gray-500 disabled:cursor-not-allowed"
                         >
                             {isLoading ? 'Signing In...' : 'Sign In'}
+                        </button>
+                         <button 
+                            type="button"
+                            onClick={handleTryOut}
+                            disabled={isLoading}
+                            className="w-full bg-gray-600 hover:bg-gray-700 text-white font-bold py-3 px-4 rounded-lg transition duration-300 transform hover:scale-105 disabled:bg-gray-500 disabled:cursor-not-allowed"
+                        >
+                            Try Out
                         </button>
                     </div>
                 </form>

@@ -21,7 +21,7 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ user, onSignOut }) => {
                     isActive
                         ? 'bg-purple-600 text-white'
                         : disabled
-                        ? 'text-gray-500 cursor-not-allowed'
+                        ? 'text-gray-500 cursor-not-allowed bg-gray-800'
                         : 'text-gray-300 hover:bg-gray-700 hover:text-white'
                 }`}
             >
@@ -38,6 +38,7 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ user, onSignOut }) => {
                 <p><span className="font-semibold text-gray-400 w-24 inline-block">Username:</span> {user.username}</p>
                 <p><span className="font-semibold text-gray-400 w-24 inline-block">Email:</span> {user.email}</p>
                 <p><span className="font-semibold text-gray-400 w-24 inline-block">SIP Voice:</span> {user.sip}</p>
+                <p><span className="font-semibold text-gray-400 w-24 inline-block">Role:</span> <span className="capitalize">{user.role}</span></p>
             </div>
         </div>
     );
@@ -146,6 +147,8 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ user, onSignOut }) => {
             </div>
         );
     };
+    
+    const isTrialOrGuest = user.role === 'trial' || user.role === 'guest';
 
     const renderContent = () => {
         switch (activeTab) {
@@ -171,8 +174,8 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ user, onSignOut }) => {
                 <div className="w-full md:w-1/4">
                     <nav className="space-y-2">
                         <TabButton tab={ProfileTab.Info} label="Info" icon={<UserIcon />} />
-                        <TabButton tab={ProfileTab.Billing} label="Billing" icon={<BillingIcon />} />
-                        <TabButton tab={ProfileTab.AI} label="AI Portal" icon={<AIIcon />} disabled={user.billing?.status === 'Suspended'} />
+                        <TabButton tab={ProfileTab.Billing} label="Billing" icon={<BillingIcon />} disabled={isTrialOrGuest} />
+                        <TabButton tab={ProfileTab.AI} label="AI Portal" icon={<AIIcon />} disabled={user.billing?.status === 'Suspended' || isTrialOrGuest} />
                     </nav>
                 </div>
                 <main className="w-full md:w-3/4 bg-gray-800/50 p-6 rounded-lg">
