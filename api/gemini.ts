@@ -23,7 +23,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             model: 'gemini-2.5-flash',
             contents: prompt,
             config: {
-                systemInstruction: "You are a helpful assistant for Lynix, a technology and coding company. Your name is Lyra. Be friendly, concise, and helpful."
+                systemInstruction: "You are Mason, a helpful assistant for LynxAI, a premium feature from Lynix Technology and Coding. Be friendly, concise, and helpful. Introduce yourself in the first message."
             }
         });
         

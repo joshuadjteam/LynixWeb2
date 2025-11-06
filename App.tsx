@@ -7,12 +7,11 @@ import SignOnPage from './components/SignOnPage';
 import ProfilePage from './components/ProfilePage';
 import AdminPage from './components/AdminPage';
 import SoftphonePage from './components/SoftphonePage';
+import LynxAiPage from './components/LynxAiPage';
 import Footer from './components/Footer';
-import GeminiChat from './components/GeminiChat';
 
 const App: React.FC = () => {
     const [currentPage, setCurrentPage] = useState<Page>(Page.Home);
-    const [isChatOpen, setIsChatOpen] = useState(false);
     const [loggedInUser, setLoggedInUser] = useState<User | null>(null);
 
     const handleLoginSuccess = useCallback((user: User) => {
@@ -29,6 +28,8 @@ const App: React.FC = () => {
         setCurrentPage(Page.Home);
     }, []);
 
+    const canAccessAI = loggedInUser && (loggedInUser.role === 'admin' || loggedInUser.role === 'standard') && loggedInUser.billing.status !== 'Suspended';
+
     const renderPage = () => {
         switch (currentPage) {
             case Page.Home:
@@ -37,11 +38,11 @@ const App: React.FC = () => {
                 return <ContactPage />;
             case Page.SignOn:
                 return loggedInUser 
-                    ? <ProfilePage user={loggedInUser} onSignOut={handleSignOut} /> 
+                    ? <ProfilePage user={loggedInUser} onSignOut={handleSignOut} setCurrentPage={setCurrentPage} /> 
                     : <SignOnPage onLoginSuccess={handleLoginSuccess} />;
             case Page.Profile:
                  return loggedInUser 
-                    ? <ProfilePage user={loggedInUser} onSignOut={handleSignOut} /> 
+                    ? <ProfilePage user={loggedInUser} onSignOut={handleSignOut} setCurrentPage={setCurrentPage} /> 
                     : <SignOnPage onLoginSuccess={handleLoginSuccess} />;
             case Page.Admin:
                  return loggedInUser && loggedInUser.role === 'admin'
@@ -51,25 +52,27 @@ const App: React.FC = () => {
                  return loggedInUser
                     ? <SoftphonePage />
                     : <SignOnPage onLoginSuccess={handleLoginSuccess} />;
+             case Page.LynxAI:
+                return canAccessAI
+                    ? <LynxAiPage user={loggedInUser} />
+                    : <HomePage />;
             default:
                 return <HomePage />;
         }
     };
     
-    const toggleChat = useCallback(() => {
-        setIsChatOpen(prev => !prev);
-    }, []);
-
     const handleSetCurrentPage = useCallback((page: Page) => {
         if (loggedInUser && page === Page.SignOn) {
             setCurrentPage(Page.Profile);
         } else if (page === Page.Admin && loggedInUser?.role !== 'admin') {
             setCurrentPage(Page.Home);
+        } else if (page === Page.LynxAI && !canAccessAI) {
+            setCurrentPage(Page.Profile);
         }
         else {
             setCurrentPage(page);
         }
-    }, [loggedInUser]);
+    }, [loggedInUser, canAccessAI]);
 
     return (
         <div className="min-h-screen flex flex-col bg-gradient-to-br from-cyan-600 via-teal-500 to-green-400 font-sans">
@@ -109,8 +112,7 @@ const App: React.FC = () => {
                     {renderPage()}
                 </div>
             </main>
-            <Footer toggleChat={toggleChat} />
-            <GeminiChat isOpen={isChatOpen} onClose={toggleChat} />
+            { currentPage !== Page.LynxAI && <Footer /> }
         </div>
     );
 };

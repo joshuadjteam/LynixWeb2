@@ -8,6 +8,25 @@ export const LynixLogo = () => (
   </svg>
 );
 
+export const LynxAiLogo = () => (
+  <svg width="150" height="150" viewBox="0 0 200 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <g transform="translate(20, 10)">
+      <path d="M50 10 L35 30 L45 50 L65 50 L75 30 Z" fill="#4CAF50" />
+      <path d="M80 15 L65 35 L75 55 L95 55 L105 35 Z" fill="#FFC107" />
+      <path d="M110 10 L95 30 L105 50 L125 50 L135 30 Z" fill="#448AFF" />
+      <path d="M140 15 L125 35 L135 55 L155 55 L165 35 Z" fill="#F44336" />
+    </g>
+  </svg>
+);
+
+
+export const SimpleUserIcon = () => (
+    <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-white bg-blue-500 rounded-full p-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+    </svg>
+);
+
+
 export const QuestionMarkIcon = () => (
     <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9.00005C8.228 7.50005 9.471 6.25705 10.971 6.25705C12.471 6.25705 13.714 7.50005 13.714 9.00005C13.714 9.94805 13.114 10.7671 12.286 11.2421C11.457 11.7171 11 12.5511 11 13.5001V14.0001" />

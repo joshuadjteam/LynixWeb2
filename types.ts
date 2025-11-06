@@ -5,12 +5,12 @@ export enum Page {
   Profile = 'Profile',
   Admin = 'Admin',
   Softphone = 'Softphone',
+  LynxAI = 'LynxAI',
 }
 
 export enum ProfileTab {
   Info = 'Info',
   Billing = 'Billing',
-  AI = 'AI',
 }
 
 export interface User {

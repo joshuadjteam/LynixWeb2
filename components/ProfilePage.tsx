@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
-import { User, ProfileTab, ChatMessage } from '../types';
-import { UserIcon, BillingIcon, AIIcon, SendIcon } from './icons';
-import { runChat } from '../services/geminiService';
+import { User, ProfileTab, Page } from '../types';
+import { UserIcon, BillingIcon, AIIcon } from './icons';
 
 interface ProfilePageProps {
     user: User;
     onSignOut: () => void;
+    setCurrentPage: (page: Page) => void;
 }
 
-const ProfilePage: React.FC<ProfilePageProps> = ({ user, onSignOut }) => {
+const ProfilePage: React.FC<ProfilePageProps> = ({ user, onSignOut, setCurrentPage }) => {
     const [activeTab, setActiveTab] = useState<ProfileTab>(ProfileTab.Info);
 
     const TabButton: React.FC<{ tab: ProfileTab; label: string; icon: React.ReactNode; disabled?: boolean }> = ({ tab, label, icon, disabled }) => {
@@ -80,81 +80,12 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ user, onSignOut }) => {
         );
     };
 
-    const AITab: React.FC = () => {
-        const [messages, setMessages] = useState<ChatMessage[]>([
-            { sender: 'gemini', text: `Hi ${user.username}! I'm Lyra, your personal AI assistant. How can I assist you with your project today?` }
-        ]);
-        const [input, setInput] = useState('');
-        const [isLoading, setIsLoading] = useState(false);
-
-        const handleSend = async () => {
-            if (input.trim() === '' || isLoading) return;
-            const userMessage: ChatMessage = { sender: 'user', text: input };
-            setMessages(prev => [...prev, userMessage]);
-            setInput('');
-            setIsLoading(true);
-            const responseText = await runChat(input);
-            const geminiMessage: ChatMessage = { sender: 'gemini', text: responseText };
-            setMessages(prev => [...prev, geminiMessage]);
-            setIsLoading(false);
-        };
-        
-         const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
-            if (e.key === 'Enter') {
-                handleSend();
-            }
-        };
-
-        return (
-            <div className="h-full flex flex-col">
-                <h3 className="text-2xl font-bold mb-4">Your Personal AI Assistant</h3>
-                <div className="flex-1 bg-gray-900/50 rounded-lg p-4 overflow-y-auto space-y-4">
-                     {messages.map((msg, index) => (
-                        <div key={index} className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
-                            <div className={`max-w-md p-3 rounded-2xl ${msg.sender === 'user' ? 'bg-blue-600 text-white' : 'bg-gray-700 text-gray-200'}`}>
-                                <p className="whitespace-pre-wrap">{msg.text}</p>
-                            </div>
-                        </div>
-                    ))}
-                    {isLoading && (
-                         <div className="flex justify-start">
-                             <div className="max-w-xs md:max-w-md p-3 rounded-2xl bg-gray-700 text-gray-200">
-                                <div className="flex items-center space-x-2">
-                                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-pulse"></div>
-                                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-pulse delay-75"></div>
-                                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-pulse delay-150"></div>
-                                </div>
-                            </div>
-                        </div>
-                    )}
-                </div>
-                <div className="mt-4">
-                    <div className="flex items-center bg-gray-700 rounded-lg">
-                        <input
-                            type="text"
-                            value={input}
-                            onChange={(e) => setInput(e.target.value)}
-                            onKeyPress={handleKeyPress}
-                            placeholder="Ask your AI assistant..."
-                            className="flex-1 bg-transparent p-3 text-white focus:outline-none"
-                            disabled={isLoading}
-                        />
-                        <button onClick={handleSend} disabled={isLoading} className="p-3 text-white disabled:text-gray-500 hover:text-blue-400 transition">
-                            <SendIcon />
-                        </button>
-                    </div>
-                </div>
-            </div>
-        );
-    };
+    const isAIAccessible = (user.role === 'admin' || user.role === 'standard') && user.billing.status !== 'Suspended';
     
-    const isTrialOrGuest = user.role === 'trial' || user.role === 'guest';
-
     const renderContent = () => {
         switch (activeTab) {
             case ProfileTab.Info: return <InfoTab />;
             case ProfileTab.Billing: return <BillingTab />;
-            case ProfileTab.AI: return <AITab />;
             default: return <InfoTab />;
         }
     };
@@ -174,8 +105,19 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ user, onSignOut }) => {
                 <div className="w-full md:w-1/4">
                     <nav className="space-y-2">
                         <TabButton tab={ProfileTab.Info} label="Info" icon={<UserIcon />} />
-                        <TabButton tab={ProfileTab.Billing} label="Billing" icon={<BillingIcon />} disabled={isTrialOrGuest} />
-                        <TabButton tab={ProfileTab.AI} label="AI Portal" icon={<AIIcon />} disabled={user.billing?.status === 'Suspended' || isTrialOrGuest} />
+                        <TabButton tab={ProfileTab.Billing} label="Billing" icon={<BillingIcon />} disabled={user.role === 'trial' || user.role === 'guest'} />
+                         <button
+                            onClick={() => setCurrentPage(Page.LynxAI)}
+                            disabled={!isAIAccessible}
+                            className={`flex items-center gap-3 w-full p-3 rounded-lg text-left transition ${
+                                !isAIAccessible
+                                ? 'text-gray-500 cursor-not-allowed bg-gray-800'
+                                : 'text-gray-300 hover:bg-gray-700 hover:text-white'
+                            }`}
+                        >
+                            <AIIcon />
+                            <span className="font-semibold">LynxAI Portal</span>
+                        </button>
                     </nav>
                 </div>
                 <main className="w-full md:w-3/4 bg-gray-800/50 p-6 rounded-lg">
