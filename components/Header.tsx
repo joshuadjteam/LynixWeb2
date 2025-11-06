@@ -14,9 +14,10 @@ const NavButton: React.FC<{
     currentPage: Page;
     setCurrentPage: (page: Page) => void;
     children: React.ReactNode;
-}> = ({ page, currentPage, setCurrentPage, children }) => {
+    icon?: React.ReactNode;
+}> = ({ page, currentPage, setCurrentPage, children, icon }) => {
     const isActive = currentPage === page;
-    const baseClasses = "px-4 py-2 rounded-lg text-white font-semibold transition-all duration-300 transform";
+    const baseClasses = "px-4 py-2 rounded-lg text-white font-semibold transition-all duration-300 transform flex items-center justify-center gap-2";
     const activeClasses = "bg-blue-600 ring-2 ring-purple-400 ring-offset-2 ring-offset-gray-800 shadow-lg scale-105";
     const inactiveClasses = "bg-gray-700 hover:bg-gray-600 hover:scale-105";
 
@@ -25,8 +26,9 @@ const NavButton: React.FC<{
             onClick={() => setCurrentPage(page)}
             className={`${baseClasses} ${isActive ? activeClasses : inactiveClasses}`}
         >
-            {children}
-            {isActive && <span className="hidden md:inline"> (Your on this Page)</span>}
+            {icon}
+            <span>{children}</span>
+            {isActive && <span className="hidden md:inline"> (You're on this Page)</span>}
         </button>
     );
 };
@@ -51,7 +53,7 @@ const Header: React.FC<HeaderProps> = ({ currentPage, setCurrentPage, loggedInUs
                 </div>
                 
                 <nav className="flex items-center gap-2 md:gap-4">
-                    <a 
+                     <a 
                         href="https://darshanjoshuakesavaruban.fwscheckout.com/" 
                         target="_blank" 
                         rel="noopener noreferrer"
@@ -59,6 +61,11 @@ const Header: React.FC<HeaderProps> = ({ currentPage, setCurrentPage, loggedInUs
                     >
                         Buy a product
                     </a>
+                    {loggedInUser && (
+                         <NavButton page={Page.Softphone} currentPage={currentPage} setCurrentPage={setCurrentPage} icon={<SoftphoneIcon />}>
+                            Softphone
+                        </NavButton>
+                    )}
                     <a 
                         href="https://sites.google.com/gcp.lynixity.x10.bz/myportal/home" 
                         target="_blank" 
@@ -67,14 +74,6 @@ const Header: React.FC<HeaderProps> = ({ currentPage, setCurrentPage, loggedInUs
                     >
                         MyPortal
                     </a>
-                    {loggedInUser && (
-                        <NavButton page={Page.Softphone} currentPage={currentPage} setCurrentPage={setCurrentPage}>
-                             <div className="flex items-center justify-center gap-2">
-                                <SoftphoneIcon />
-                                <span>Softphone</span>
-                            </div>
-                        </NavButton>
-                    )}
                     <NavButton page={Page.Contact} currentPage={currentPage} setCurrentPage={setCurrentPage}>
                         Contact Us
                     </NavButton>
