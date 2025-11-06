@@ -56,6 +56,14 @@ const Header: React.FC<HeaderProps> = ({ currentPage, setCurrentPage, loggedInUs
                     >
                         Buy a product
                     </a>
+                    <a 
+                        href="https://sites.google.com/gcp.lynixity.x10.bz/myportal/home" 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className={baseButtonClasses}
+                    >
+                        MyPortal
+                    </a>
                     <NavButton page={Page.Contact} currentPage={currentPage} setCurrentPage={setCurrentPage}>
                         Contact Us
                     </NavButton>

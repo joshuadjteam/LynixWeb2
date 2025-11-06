@@ -36,6 +36,12 @@ export const InstagramIcon = () => (
     </svg>
 );
 
+export const GoogleIcon = () => (
+    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M21.35,11.1h-9.35v2.9h5.5c-0.5,2.1-2.3,3.8-4.6,3.8c-2.8,0-5.1-2.3-5.1-5.1s2.3-5.1,5.1-5.1c1.1,0,2.1,0.4,2.9,1l2.3-2.3C16.9,4.4,14.8,3.5,12,3.5c-4.8,0-8.7,3.9-8.7,8.7s3.9,8.7,8.7,8.7c4.6,0,8.3-3.7,8.3-8.3c0-0.6-0.1-1.2-0.2-1.8H21.35z"/>
+    </svg>
+);
+
 export const SendIcon = () => (
     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
         <path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z" />
