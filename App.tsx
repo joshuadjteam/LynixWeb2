@@ -9,6 +9,7 @@ import AdminPage from './components/AdminPage';
 import SoftphonePage from './components/SoftphonePage';
 import LynxAiPage from './components/LynxAiPage';
 import AiChoiceModal from './components/AiChoiceModal';
+import ChatPage from './components/ChatPage';
 import Footer from './components/Footer';
 
 const GUEST_SESSION_KEY = 'lynixGuestAiSession';
@@ -24,7 +25,7 @@ const App: React.FC = () => {
 
     const handleLoginSuccess = useCallback((user: User) => {
         setLoggedInUser(user);
-        if (loginRedirectToAi) {
+        if (loginRedirectToAi && user.ai_enabled) {
             setCurrentPage(Page.LynxAI);
             setLoginRedirectToAi(false);
         } else if (user.role === 'admin') {
@@ -89,7 +90,8 @@ const App: React.FC = () => {
         });
     };
 
-    const canAccessAI = loggedInUser && (loggedInUser.role === 'admin' || loggedInUser.role === 'standard') && loggedInUser.billing.status !== 'Suspended';
+    const canAccessAI = loggedInUser && loggedInUser.ai_enabled && (loggedInUser.role === 'admin' || loggedInUser.role === 'standard') && loggedInUser.billing.status !== 'Suspended';
+    const canAccessChat = loggedInUser && loggedInUser.chat_enabled;
 
     useEffect(() => {
         if (currentPage !== Page.LynxAI) {
@@ -105,6 +107,7 @@ const App: React.FC = () => {
             case Page.Profile: return loggedInUser ? <ProfilePage user={loggedInUser} onSignOut={handleSignOut} setCurrentPage={setCurrentPage} /> : <SignOnPage onLoginSuccess={handleLoginSuccess} />;
             case Page.Admin: return loggedInUser?.role === 'admin' ? <AdminPage /> : <HomePage />;
             case Page.Softphone: return loggedInUser ? <SoftphonePage /> : <SignOnPage onLoginSuccess={handleLoginSuccess} />;
+            case Page.Chat: return canAccessChat ? <ChatPage currentUser={loggedInUser} /> : <HomePage />;
             case Page.LynxAI:
                 if (canAccessAI) {
                     return <LynxAiPage user={loggedInUser} />;

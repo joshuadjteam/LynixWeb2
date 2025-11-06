@@ -16,6 +16,26 @@ const Modal: React.FC<{ title: string; onClose: () => void; children: React.Reac
   </div>
 );
 
+const Toggle: React.FC<{ label: string; enabled: boolean; onChange: (enabled: boolean) => void; }> = ({ label, enabled, onChange }) => (
+    <div className="flex items-center justify-between bg-gray-700 p-3 rounded-lg">
+        <span className="font-medium text-white">{label}</span>
+        <button
+            type="button"
+            onClick={() => onChange(!enabled)}
+            className={`relative inline-flex items-center h-6 rounded-full w-11 transition-colors ${
+                enabled ? 'bg-blue-600' : 'bg-gray-600'
+            }`}
+        >
+            <span
+                className={`inline-block w-4 h-4 transform bg-white rounded-full transition-transform ${
+                    enabled ? 'translate-x-6' : 'translate-x-1'
+                }`}
+            />
+        </button>
+    </div>
+);
+
+
 const AdminPage: React.FC = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -58,7 +78,9 @@ const AdminPage: React.FC = () => {
         sip: '',
         role: 'standard',
         plan: { name: '', cost: '', details: '' },
-        billing: { status: 'On Time', owes: 0 }
+        billing: { status: 'On Time', owes: 0 },
+        chat_enabled: false,
+        ai_enabled: false,
     });
     setPassword('');
     setIsModalOpen(true);
@@ -85,6 +107,10 @@ const AdminPage: React.FC = () => {
   
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
+    setFormData((prev: any) => ({ ...prev, [name]: value }));
+  };
+
+  const handleToggleChange = (name: 'chat_enabled' | 'ai_enabled', value: boolean) => {
     setFormData((prev: any) => ({ ...prev, [name]: value }));
   };
 
@@ -118,6 +144,8 @@ const AdminPage: React.FC = () => {
                 status: formData.billing.status,
                 owes: Number(formData.billing.owes) || 0,
             },
+            chat_enabled: formData.chat_enabled,
+            ai_enabled: formData.ai_enabled,
         },
         password: password
       };
@@ -169,9 +197,9 @@ const AdminPage: React.FC = () => {
               <th scope="col" className="px-6 py-4">Username</th>
               <th scope="col" className="px-6 py-4">Role</th>
               <th scope="col" className="px-6 py-4">Email</th>
-              <th scope="col" className="px-6 py-4">Plan</th>
-              <th scope="col" className="px-6 py-4">Billing Status</th>
-              <th scope="col" className="px-6 py-4 text-right">Actions</th>
+              <th scope="col" className="px-6 py-4">Chat</th>
+              <th scope="col" className="px-6 py-4">AI</th>
+              <th scope="col" className="px-6 py-4">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -180,14 +208,14 @@ const AdminPage: React.FC = () => {
                 <td className="whitespace-nowrap px-6 py-4 font-medium">{user.username}</td>
                 <td className="whitespace-nowrap px-6 py-4 capitalize">{user.role}</td>
                 <td className="whitespace-nowrap px-6 py-4">{user.email}</td>
-                <td className="whitespace-nowrap px-6 py-4">{user.plan.name}</td>
                 <td className="whitespace-nowrap px-6 py-4">
-                  <span className={`px-2 py-1 rounded-full text-xs font-bold ${
-                    user.billing.status === 'On Time' ? 'bg-green-500/20 text-green-300' :
-                    user.billing.status === 'Suspended' ? 'bg-red-500/20 text-red-300' :
-                    'bg-yellow-500/20 text-yellow-300'
-                  }`}>
-                    {user.billing.status}
+                  <span className={`px-2 py-1 rounded-full text-xs font-bold ${user.chat_enabled ? 'bg-green-500/20 text-green-300' : 'bg-gray-600/50 text-gray-400'}`}>
+                    {user.chat_enabled ? 'Enabled' : 'Disabled'}
+                  </span>
+                </td>
+                <td className="whitespace-nowrap px-6 py-4">
+                  <span className={`px-2 py-1 rounded-full text-xs font-bold ${user.ai_enabled ? 'bg-green-500/20 text-green-300' : 'bg-gray-600/50 text-gray-400'}`}>
+                    {user.ai_enabled ? 'Enabled' : 'Disabled'}
                   </span>
                 </td>
                 <td className="whitespace-nowrap px-6 py-4 text-right space-x-2">
@@ -228,13 +256,20 @@ const AdminPage: React.FC = () => {
               <label className="block text-sm font-medium text-gray-300">Password ({modalMode === 'edit' ? 'leave blank to keep current' : 'required'})</label>
               <input type="password" name="password" value={password} onChange={(e) => setPassword(e.target.value)} required={modalMode === 'add'} className="mt-1 block w-full bg-gray-700 border border-gray-600 rounded-md shadow-sm py-2 px-3 text-white focus:outline-none focus:ring-purple-500 focus:border-purple-500" />
             </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-300">Email</label>
-              <input type="email" name="email" value={formData.email} onChange={handleInputChange} required className="mt-1 block w-full bg-gray-700 border border-gray-600 rounded-md shadow-sm py-2 px-3 text-white focus:outline-none focus:ring-purple-500 focus:border-purple-500" />
+             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label className="block text-sm font-medium text-gray-300">Email</label>
+                    <input type="email" name="email" value={formData.email} onChange={handleInputChange} required className="mt-1 block w-full bg-gray-700 border border-gray-600 rounded-md shadow-sm py-2 px-3 text-white focus:outline-none focus:ring-purple-500 focus:border-purple-500" />
+                </div>
+                <div>
+                    <label className="block text-sm font-medium text-gray-300">SIP</label>
+                    <input type="text" name="sip" value={formData.sip} onChange={handleInputChange} className="mt-1 block w-full bg-gray-700 border border-gray-600 rounded-md shadow-sm py-2 px-3 text-white focus:outline-none focus:ring-purple-500 focus:border-purple-500" />
+                </div>
             </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-300">SIP</label>
-              <input type="text" name="sip" value={formData.sip} onChange={handleInputChange} className="mt-1 block w-full bg-gray-700 border border-gray-600 rounded-md shadow-sm py-2 px-3 text-white focus:outline-none focus:ring-purple-500 focus:border-purple-500" />
+            <h4 className="text-lg font-semibold pt-4 border-t border-gray-600">Features</h4>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <Toggle label="Enable Chat" enabled={formData.chat_enabled} onChange={(val) => handleToggleChange('chat_enabled', val)} />
+                <Toggle label="Enable AI" enabled={formData.ai_enabled} onChange={(val) => handleToggleChange('ai_enabled', val)} />
             </div>
             <h4 className="text-lg font-semibold pt-4 border-t border-gray-600">Plan</h4>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

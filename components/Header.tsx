@@ -1,6 +1,6 @@
 import React from 'react';
 import { Page, User } from '../types';
-import { LynixLogo, SoftphoneIcon } from './icons';
+import { LynixLogo, SoftphoneIcon, ChatIcon } from './icons';
 
 interface HeaderProps {
     currentPage: Page;
@@ -64,6 +64,11 @@ const Header: React.FC<HeaderProps> = ({ currentPage, setCurrentPage, loggedInUs
                     {loggedInUser && (
                          <NavButton page={Page.Softphone} currentPage={currentPage} setCurrentPage={setCurrentPage} icon={<SoftphoneIcon />}>
                             Softphone
+                        </NavButton>
+                    )}
+                    {loggedInUser && loggedInUser.chat_enabled && (
+                        <NavButton page={Page.Chat} currentPage={currentPage} setCurrentPage={setCurrentPage} icon={<ChatIcon />}>
+                            Chat
                         </NavButton>
                     )}
                     <a 

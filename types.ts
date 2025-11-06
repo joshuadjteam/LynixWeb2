@@ -6,6 +6,7 @@ export enum Page {
   Admin = 'Admin',
   Softphone = 'Softphone',
   LynxAI = 'LynxAI',
+  Chat = 'Chat',
 }
 
 export enum ProfileTab {
@@ -28,11 +29,21 @@ export interface User {
     status: 'On Time' | 'Overdue' | 'Suspended';
     owes?: number;
   };
+  chat_enabled: boolean;
+  ai_enabled: boolean;
 }
 
 export interface ChatMessage {
   sender: 'user' | 'gemini';
   text: string;
+}
+
+export interface DirectMessage {
+    id: number;
+    sender_id: string;
+    recipient_id: string;
+    text: string;
+    timestamp: string;
 }
 
 export interface GuestSession {

@@ -25,9 +25,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             const userData = req.body;
             const query = `
                 UPDATE users
-                SET username = $1, email = $2, sip = $3, plan = $4, billing = $5, role = $6
-                WHERE id = $7
-                RETURNING id, username, role, plan, email, sip, billing;
+                SET username = $1, email = $2, sip = $3, plan = $4, billing = $5, role = $6, chat_enabled = $7, ai_enabled = $8
+                WHERE id = $9
+                RETURNING id, username, role, plan, email, sip, billing, chat_enabled, ai_enabled;
             `;
             const values = [
                 userData.username,
@@ -36,6 +36,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 JSON.stringify(userData.plan),
                 JSON.stringify(userData.billing),
                 userData.role,
+                userData.chat_enabled,
+                userData.ai_enabled,
                 id
             ];
             const { rows } = await pool.query(query, values);
