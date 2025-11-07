@@ -34,7 +34,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         await ensureTableExists();
     } catch(e) {
         console.error("Failed to ensure notes table exists", e);
-        // We can still try to proceed, but this is a bad sign.
+        return res.status(500).json({ message: 'Database initialization failed.' });
     }
     
 

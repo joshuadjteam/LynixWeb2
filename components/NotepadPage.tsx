@@ -23,10 +23,12 @@ const NotepadPage: React.FC<NotepadPageProps> = ({ currentUser }) => {
                     setContent(data.content || '');
                 } else {
                     console.error('Failed to fetch notes.');
+                    setContent(''); // Set to empty string on failure to allow user interaction
                     setStatus('error');
                 }
             } catch (error) {
                 console.error('Error fetching notes:', error);
+                setContent(''); // Set to empty string on failure
                 setStatus('error');
             }
         };
@@ -64,6 +66,11 @@ const NotepadPage: React.FC<NotepadPageProps> = ({ currentUser }) => {
             saveTimeoutRef.current = window.setTimeout(() => {
                 saveNote(content);
             }, 2000); // Auto-save after 2 seconds of inactivity
+        }
+        return () => {
+             if (saveTimeoutRef.current) {
+                clearTimeout(saveTimeoutRef.current);
+            }
         }
     }, [content, saveNote]);
 
