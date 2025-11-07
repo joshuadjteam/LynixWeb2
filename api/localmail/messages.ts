@@ -63,7 +63,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
             for (const recipient of recipients) {
                 const recipientUsername = recipient.split('@')[0].toLowerCase();
-                const recipientUserResult = await client.query('SELECT id, localmail_enabled FROM users WHERE lower(username) = $1', [recipientUsername]);
+                const recipientUserResult = await client.query('SELECT id, username, localmail_enabled FROM users WHERE lower(username) = $1', [recipientUsername]);
                 
                 if (recipientUserResult.rows.length === 0) {
                     throw new Error(`Recipient "${recipient}" not found.`);
