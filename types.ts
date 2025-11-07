@@ -12,6 +12,7 @@ export enum Page {
   Calculator = 'Calculator',
   Contacts = 'Contacts',
   Phone = 'Phone',
+  VoiceServer = 'VoiceServer',
 }
 
 export enum ProfileTab {
@@ -96,4 +97,22 @@ export interface Call {
     callee_username: string;
     status: CallStatus;
     answered_at?: string;
+}
+
+export interface VoiceServerRoom {
+    id: string;
+    name: string;
+}
+
+export interface VoiceServerParticipant {
+    user_id: string;
+    username: string;
+}
+
+export interface VoiceServerMessage {
+    id: number;
+    sender_id: string;
+    sender_username: string;
+    audio_data: string; // base64 string
+    created_at: string;
 }

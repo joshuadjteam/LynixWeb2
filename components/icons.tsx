@@ -189,3 +189,10 @@ export const UnmuteIcon = () => (
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 11h2m7 0h2" />
     </svg>
 );
+
+export const VoiceServerIcon = () => (
+    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 1v2m-5.657 2.343l1.414 1.414M3 11H1m2 5.657l1.414-1.414m13.243 0l-1.414-1.414M23 11h-2m-2-5.657l-1.414 1.414" />
+    </svg>
+);

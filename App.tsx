@@ -17,6 +17,7 @@ import LocalMailPage from './components/LocalMailPage';
 import NotepadPage from './components/NotepadPage';
 import CalculatorPage from './components/CalculatorPage';
 import ContactsListPage from './components/ContactsListPage';
+import VoiceServerPage from './components/VoiceServerPage';
 import Footer from './components/Footer';
 import { useTheme } from './components/ThemeContext';
 import { CallProvider } from './components/CallProvider';
@@ -180,6 +181,7 @@ const AppContent: React.FC = () => {
             case Page.Admin: return loggedInUser?.role === 'admin' ? <AdminPage /> : <HomePage />;
             case Page.Softphone: return loggedInUser ? <SoftphonePage /> : <SignOnPage onLoginSuccess={handleLoginSuccess} />;
             case Page.Phone: return loggedInUser ? <PhonePage currentUser={loggedInUser} /> : <SignOnPage onLoginSuccess={handleLoginSuccess} />;
+            case Page.VoiceServer: return loggedInUser ? <VoiceServerPage currentUser={loggedInUser} /> : <SignOnPage onLoginSuccess={handleLoginSuccess} />;
             case Page.Chat: return canAccessChat ? <ChatPage currentUser={loggedInUser} /> : <HomePage />;
             case Page.LocalMail: return canAccessLocalMail ? <LocalMailPage currentUser={loggedInUser} /> : <HomePage />;
             case Page.Notepad: return loggedInUser ? <NotepadPage currentUser={loggedInUser} /> : <SignOnPage onLoginSuccess={handleLoginSuccess} />;
