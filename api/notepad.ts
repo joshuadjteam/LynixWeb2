@@ -12,8 +12,25 @@ const getUserIdFromRequest = (req: VercelRequest): string | null => {
 
 const EXPIRATION_HOURS = 72;
 
-// Function to ensure the table exists
+// Function to ensure the necessary tables exist
 const ensureTableExists = async () => {
+    // This table is a dependency for many other tables. The PRIMARY KEY on `id` is crucial.
+    await pool.query(`
+        CREATE TABLE IF NOT EXISTS users (
+            id VARCHAR(255) PRIMARY KEY,
+            username VARCHAR(255) UNIQUE NOT NULL,
+            password_hash VARCHAR(255) NOT NULL,
+            email VARCHAR(255) UNIQUE NOT NULL,
+            role VARCHAR(50) NOT NULL,
+            plan JSONB,
+            sip VARCHAR(255),
+            billing JSONB,
+            chat_enabled BOOLEAN DEFAULT FALSE,
+            ai_enabled BOOLEAN DEFAULT FALSE,
+            localmail_enabled BOOLEAN DEFAULT FALSE
+        );
+    `);
+    
     await pool.query(`
         CREATE TABLE IF NOT EXISTS notes (
             user_id VARCHAR(255) PRIMARY KEY,

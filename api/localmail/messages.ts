@@ -10,10 +10,33 @@ const getUserIdFromRequest = (req: VercelRequest): string | null => {
     return req.headers['x-user-id'] as string || null;
 }
 
+const ensureTableExists = async () => {
+    // Note: This relies on the `users` table already existing.
+    await pool.query(`
+        CREATE TABLE IF NOT EXISTS localmails (
+            id SERIAL PRIMARY KEY,
+            sender_id VARCHAR(255) NOT NULL,
+            recipient_username VARCHAR(255) NOT NULL,
+            subject TEXT NOT NULL,
+            body TEXT NOT NULL,
+            timestamp TIMESTAMPTZ DEFAULT NOW(),
+            is_read BOOLEAN DEFAULT FALSE,
+            FOREIGN KEY (sender_id) REFERENCES users(id) ON DELETE CASCADE
+        );
+    `);
+};
+
 export default async function handler(req: VercelRequest, res: VercelResponse) {
     const userId = getUserIdFromRequest(req);
     if (!userId) {
         return res.status(401).json({ message: 'Authentication required.' });
+    }
+
+    try {
+        await ensureTableExists();
+    } catch(e) {
+        console.error("Failed to ensure localmails table exists", e);
+        return res.status(500).json({ message: 'Database initialization failed.' });
     }
 
     // GET /api/localmail/messages?view=inbox|sent

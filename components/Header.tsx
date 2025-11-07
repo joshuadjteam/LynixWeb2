@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Page, User, Alert } from '../types';
-import { LynixLogo, BellIcon, WebIcon, AppsIcon, SoftphoneIcon, ChatIcon, MailIcon, NotepadIcon, CalculatorIcon, ContactsIcon } from './icons';
+import { LynixLogo, BellIcon, WebIcon, AppsIcon, SoftphoneIcon, ChatIcon, MailIcon, NotepadIcon, CalculatorIcon, ContactsIcon, PhoneIcon } from './icons';
 import AlertsDropdown from './AlertsDropdown';
 import ThemeToggle from './ThemeToggle';
 
@@ -129,6 +129,7 @@ const Header: React.FC<HeaderProps> = ({ currentPage, setCurrentPage, loggedInUs
                             {isAppsOpen && (
                                 <div className="absolute top-full right-0 mt-2 w-56 bg-white dark:bg-gray-700 rounded-lg shadow-lg z-50 animate-content-fade overflow-hidden border dark:border-gray-600">
                                     <button onClick={() => handleAppClick(Page.Softphone)} className="flex items-center gap-3 w-full text-left px-4 py-3 text-gray-800 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-600 transition"><SoftphoneIcon /> <span>Softphone</span></button>
+                                    <button onClick={() => handleAppClick(Page.Phone)} className="flex items-center gap-3 w-full text-left px-4 py-3 text-gray-800 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-600 transition"><PhoneIcon /> <span>Phone</span></button>
                                     {loggedInUser.chat_enabled && <button onClick={() => handleAppClick(Page.Chat)} className="flex items-center gap-3 w-full text-left px-4 py-3 text-gray-800 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-600 transition"><ChatIcon /> <span>Chat</span></button>}
                                     {loggedInUser.localmail_enabled && <button onClick={() => handleAppClick(Page.LocalMail)} className="flex items-center gap-3 w-full text-left px-4 py-3 text-gray-800 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-600 transition"><MailIcon /> <span>LocalMail</span></button>}
                                     <button onClick={() => handleAppClick(Page.Notepad)} className="flex items-center gap-3 w-full text-left px-4 py-3 text-gray-800 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-600 transition"><NotepadIcon /> <span>Notepad</span></button>

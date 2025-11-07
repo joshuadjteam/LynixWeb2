@@ -11,11 +11,20 @@ export enum Page {
   Notepad = 'Notepad',
   Calculator = 'Calculator',
   Contacts = 'Contacts',
+  Phone = 'Phone',
 }
 
 export enum ProfileTab {
   Info = 'Info',
   Billing = 'Billing',
+}
+
+export enum CallStatus {
+    Ringing = 'ringing',
+    Answered = 'answered',
+    Ended = 'ended',
+    Declined = 'declined',
+    Missed = 'missed', // Future use
 }
 
 export interface User {
@@ -80,4 +89,16 @@ export interface Contact {
     email?: string;
     phone?: string;
     notes?: string;
+}
+
+export interface Call {
+    id: number;
+    caller_id: string;
+    caller_username: string;
+    receiver_id: string;
+    receiver_username: string;
+    status: CallStatus;
+    start_time?: string;
+    end_time?: string;
+    created_at: string;
 }

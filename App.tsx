@@ -14,8 +14,10 @@ import LocalMailPage from './components/LocalMailPage';
 import NotepadPage from './components/NotepadPage';
 import CalculatorPage from './components/CalculatorPage';
 import ContactsListPage from './components/ContactsListPage';
+import PhonePage from './components/PhonePage';
 import Footer from './components/Footer';
 import { useTheme } from './components/ThemeContext';
+import { CallProvider } from './components/CallProvider';
 
 const GUEST_SESSION_KEY = 'lynixGuestAiSession';
 const GUEST_MESSAGE_LIMIT = 50;
@@ -175,6 +177,7 @@ const App: React.FC = () => {
             case Page.Profile: return loggedInUser ? <ProfilePage user={loggedInUser} onSignOut={handleSignOut} setCurrentPage={setCurrentPage} /> : <SignOnPage onLoginSuccess={handleLoginSuccess} />;
             case Page.Admin: return loggedInUser?.role === 'admin' ? <AdminPage /> : <HomePage />;
             case Page.Softphone: return loggedInUser ? <SoftphonePage /> : <SignOnPage onLoginSuccess={handleLoginSuccess} />;
+            case Page.Phone: return loggedInUser ? <PhonePage currentUser={loggedInUser} /> : <SignOnPage onLoginSuccess={handleLoginSuccess} />;
             case Page.Chat: return canAccessChat ? <ChatPage currentUser={loggedInUser} /> : <HomePage />;
             case Page.LocalMail: return canAccessLocalMail ? <LocalMailPage currentUser={loggedInUser} /> : <HomePage />;
             case Page.Notepad: return loggedInUser ? <NotepadPage currentUser={loggedInUser} /> : <SignOnPage onLoginSuccess={handleLoginSuccess} />;
@@ -193,50 +196,52 @@ const App: React.FC = () => {
     };
 
     return (
-        <div className="min-h-screen flex flex-col bg-slate-100 text-slate-800 dark:bg-gradient-to-br dark:from-cyan-600 dark:via-teal-500 dark:to-green-400 dark:text-white font-sans transition-colors duration-300">
-            <style>{`
-                :root { --ai-pulse-color: rgba(30, 64, 175, 0.4); }
-                html.dark { --ai-pulse-color: rgba(147, 197, 253, 0.4); }
+        <CallProvider user={loggedInUser}>
+            <div className="min-h-screen flex flex-col bg-slate-100 text-slate-800 dark:bg-gradient-to-br dark:from-cyan-600 dark:via-teal-500 dark:to-green-400 dark:text-white font-sans transition-colors duration-300">
+                <style>{`
+                    :root { --ai-pulse-color: rgba(30, 64, 175, 0.4); }
+                    html.dark { --ai-pulse-color: rgba(147, 197, 253, 0.4); }
 
-                @keyframes page-transition {
-                    0% { opacity: 0; transform: translateY(20px); }
-                    100% { opacity: 1; transform: translateY(0); }
-                }
-                .animate-page-transition { animation: page-transition 0.5s ease-in-out; }
+                    @keyframes page-transition {
+                        0% { opacity: 0; transform: translateY(20px); }
+                        100% { opacity: 1; transform: translateY(0); }
+                    }
+                    .animate-page-transition { animation: page-transition 0.5s ease-in-out; }
 
-                @keyframes content-fade {
-                    0% { opacity: 0; }
-                    100% { opacity: 1; }
-                }
-                .animate-content-fade { animation: content-fade 0.5s ease-in-out; }
+                    @keyframes content-fade {
+                        0% { opacity: 0; }
+                        100% { opacity: 1; }
+                    }
+                    .animate-content-fade { animation: content-fade 0.5s ease-in-out; }
 
-                @keyframes modal-open {
-                    0% { opacity: 0; transform: scale(0.95); }
-                    100% { opacity: 1; transform: scale(1); }
-                }
-                .animate-modal-open { animation: modal-open 0.3s ease-out; }
+                    @keyframes modal-open {
+                        0% { opacity: 0; transform: scale(0.95); }
+                        100% { opacity: 1; transform: scale(1); }
+                    }
+                    .animate-modal-open { animation: modal-open 0.3s ease-out; }
 
-                @keyframes ai-pulse {
-                    0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 var(--ai-pulse-color); }
-                    50% { transform: scale(1.05); box-shadow: 0 0 0 10px transparent; }
-                }
-                .animate-ai-pulse { animation: ai-pulse 2.5s infinite; }
-            `}</style>
-            <Header currentPage={currentPage} setCurrentPage={setCurrentPage} loggedInUser={loggedInUser} onSignOut={handleSignOut} alerts={alerts} onAlertClick={handleAlertClick} />
-            <main className="flex-grow container mx-auto p-4 md:p-8 flex items-center justify-center">
-                <div key={currentPage} className="animate-page-transition w-full flex items-center justify-center">
-                    {renderPage()}
-                </div>
-            </main>
-            { currentPage !== Page.LynxAI && <Footer onOpenAiChoiceModal={() => setIsAiChoiceModalOpen(true)} /> }
-            {isAiChoiceModalOpen && (
-                <AiChoiceModal 
-                    onClose={() => setIsAiChoiceModalOpen(false)}
-                    onSelectLynixId={handleSelectLynixId}
-                    onSelectGuest={handleSelectGuest}
-                />
-            )}
-        </div>
+                    @keyframes ai-pulse {
+                        0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 var(--ai-pulse-color); }
+                        50% { transform: scale(1.05); box-shadow: 0 0 0 10px transparent; }
+                    }
+                    .animate-ai-pulse { animation: ai-pulse 2.5s infinite; }
+                `}</style>
+                <Header currentPage={currentPage} setCurrentPage={setCurrentPage} loggedInUser={loggedInUser} onSignOut={handleSignOut} alerts={alerts} onAlertClick={handleAlertClick} />
+                <main className="flex-grow container mx-auto p-4 md:p-8 flex items-center justify-center">
+                    <div key={currentPage} className="animate-page-transition w-full flex items-center justify-center">
+                        {renderPage()}
+                    </div>
+                </main>
+                { currentPage !== Page.LynxAI && <Footer onOpenAiChoiceModal={() => setIsAiChoiceModalOpen(true)} /> }
+                {isAiChoiceModalOpen && (
+                    <AiChoiceModal 
+                        onClose={() => setIsAiChoiceModalOpen(false)}
+                        onSelectLynixId={handleSelectLynixId}
+                        onSelectGuest={handleSelectGuest}
+                    />
+                )}
+            </div>
+        </CallProvider>
     );
 };
 

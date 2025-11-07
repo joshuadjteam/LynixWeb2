@@ -5,7 +5,31 @@ const pool = new Pool({
     connectionString: process.env.POSTGRES_URL,
 });
 
+const ensureTableExists = async () => {
+    // Note: This relies on the `users` table already existing with a primary key on `id`.
+    // Other API endpoints (like notepad) ensure the `users` table is created.
+    await pool.query(`
+        CREATE TABLE IF NOT EXISTS messages (
+            id SERIAL PRIMARY KEY,
+            sender_id VARCHAR(255) NOT NULL,
+            recipient_id VARCHAR(255) NOT NULL,
+            text TEXT NOT NULL,
+            timestamp TIMESTAMPTZ DEFAULT NOW(),
+            is_read BOOLEAN DEFAULT FALSE,
+            FOREIGN KEY (sender_id) REFERENCES users(id) ON DELETE CASCADE,
+            FOREIGN KEY (recipient_id) REFERENCES users(id) ON DELETE CASCADE
+        );
+    `);
+};
+
 export default async function handler(req: VercelRequest, res: VercelResponse) {
+    try {
+        await ensureTableExists();
+    } catch(e) {
+        console.error("Failed to ensure messages table exists", e);
+        return res.status(500).json({ message: 'Database initialization failed.' });
+    }
+
     // GET /api/chat/messages?senderId=...&recipientId=...
     if (req.method === 'GET') {
         const client = await pool.connect();
