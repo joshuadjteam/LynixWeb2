@@ -9,6 +9,8 @@ export enum Page {
   Chat = 'Chat',
   LocalMail = 'LocalMail',
   Notepad = 'Notepad',
+  Calculator = 'Calculator',
+  Contacts = 'Contacts',
 }
 
 export enum ProfileTab {
@@ -69,4 +71,13 @@ export interface LocalMailMessage {
 export interface GuestSession {
     responsesLeft: number;
     resetTime: number | null;
+}
+
+export interface Contact {
+    id: number;
+    user_id: string;
+    name: string;
+    email?: string;
+    phone?: string;
+    notes?: string;
 }

@@ -12,6 +12,8 @@ import AiChoiceModal from './components/AiChoiceModal';
 import ChatPage from './components/ChatPage';
 import LocalMailPage from './components/LocalMailPage';
 import NotepadPage from './components/NotepadPage';
+import CalculatorPage from './components/CalculatorPage';
+import ContactsListPage from './components/ContactsListPage';
 import Footer from './components/Footer';
 import { useTheme } from './components/ThemeContext';
 
@@ -176,6 +178,8 @@ const App: React.FC = () => {
             case Page.Chat: return canAccessChat ? <ChatPage currentUser={loggedInUser} /> : <HomePage />;
             case Page.LocalMail: return canAccessLocalMail ? <LocalMailPage currentUser={loggedInUser} /> : <HomePage />;
             case Page.Notepad: return loggedInUser ? <NotepadPage currentUser={loggedInUser} /> : <SignOnPage onLoginSuccess={handleLoginSuccess} />;
+            case Page.Calculator: return loggedInUser ? <CalculatorPage /> : <SignOnPage onLoginSuccess={handleLoginSuccess} />;
+            case Page.Contacts: return loggedInUser ? <ContactsListPage currentUser={loggedInUser} /> : <SignOnPage onLoginSuccess={handleLoginSuccess} />;
             case Page.LynxAI:
                 if (canAccessAI) {
                     return <LynxAiPage user={loggedInUser} />;
