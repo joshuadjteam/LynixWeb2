@@ -1,4 +1,5 @@
 
+
 import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { Page, User, GuestSession, Alert } from './types';
 import Header from './components/Header';
@@ -8,6 +9,7 @@ import SignOnPage from './components/SignOnPage';
 import ProfilePage from './components/ProfilePage';
 import AdminPage from './components/AdminPage';
 import SoftphonePage from './components/SoftphonePage';
+import PhonePage from './components/PhonePage';
 import LynxAiPage from './components/LynxAiPage';
 import AiChoiceModal from './components/AiChoiceModal';
 import ChatPage from './components/ChatPage';
@@ -15,7 +17,6 @@ import LocalMailPage from './components/LocalMailPage';
 import NotepadPage from './components/NotepadPage';
 import CalculatorPage from './components/CalculatorPage';
 import ContactsListPage from './components/ContactsListPage';
-import PhonePage from './components/PhonePage';
 import Footer from './components/Footer';
 import { useTheme } from './components/ThemeContext';
 import { CallProvider } from './components/CallProvider';
@@ -24,7 +25,7 @@ const GUEST_SESSION_KEY = 'lynixGuestAiSession';
 const GUEST_MESSAGE_LIMIT = 50;
 const GUEST_SESSION_DURATION = 60 * 60 * 1000; // 1 hour
 
-const App: React.FC = () => {
+const AppContent: React.FC = () => {
     const { theme } = useTheme();
     const [currentPage, setCurrentPage] = useState<Page>(Page.Home);
     const [loggedInUser, setLoggedInUser] = useState<User | null>(null);
@@ -197,53 +198,58 @@ const App: React.FC = () => {
     };
 
     return (
-        <CallProvider user={loggedInUser}>
-            <div className="min-h-screen flex flex-col bg-slate-100 text-slate-800 dark:bg-gradient-to-br dark:from-cyan-600 dark:via-teal-500 dark:to-green-400 dark:text-white font-sans transition-colors duration-300">
-                <style>{`
-                    :root { --ai-pulse-color: rgba(30, 64, 175, 0.4); }
-                    html.dark { --ai-pulse-color: rgba(147, 197, 253, 0.4); }
+        <div className="min-h-screen flex flex-col bg-slate-100 text-slate-800 dark:bg-gradient-to-br dark:from-cyan-600 dark:via-teal-500 dark:to-green-400 dark:text-white font-sans transition-colors duration-300">
+            <style>{`
+                :root { --ai-pulse-color: rgba(30, 64, 175, 0.4); }
+                html.dark { --ai-pulse-color: rgba(147, 197, 253, 0.4); }
 
-                    @keyframes page-transition {
-                        0% { opacity: 0; transform: translateY(20px); }
-                        100% { opacity: 1; transform: translateY(0); }
-                    }
-                    .animate-page-transition { animation: page-transition 0.5s ease-in-out; }
+                @keyframes page-transition {
+                    0% { opacity: 0; transform: translateY(20px); }
+                    100% { opacity: 1; transform: translateY(0); }
+                }
+                .animate-page-transition { animation: page-transition 0.5s ease-in-out; }
 
-                    @keyframes content-fade {
-                        0% { opacity: 0; }
-                        100% { opacity: 1; }
-                    }
-                    .animate-content-fade { animation: content-fade 0.5s ease-in-out; }
+                @keyframes content-fade {
+                    0% { opacity: 0; }
+                    100% { opacity: 1; }
+                }
+                .animate-content-fade { animation: content-fade 0.5s ease-in-out; }
 
-                    @keyframes modal-open {
-                        0% { opacity: 0; transform: scale(0.95); }
-                        100% { opacity: 1; transform: scale(1); }
-                    }
-                    .animate-modal-open { animation: modal-open 0.3s ease-out; }
+                @keyframes modal-open {
+                    0% { opacity: 0; transform: scale(0.95); }
+                    100% { opacity: 1; transform: scale(1); }
+                }
+                .animate-modal-open { animation: modal-open 0.3s ease-out; }
 
-                    @keyframes ai-pulse {
-                        0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 var(--ai-pulse-color); }
-                        50% { transform: scale(1.05); box-shadow: 0 0 0 10px transparent; }
-                    }
-                    .animate-ai-pulse { animation: ai-pulse 2.5s infinite; }
-                `}</style>
-                <Header currentPage={currentPage} setCurrentPage={setCurrentPage} loggedInUser={loggedInUser} onSignOut={handleSignOut} alerts={alerts} onAlertClick={handleAlertClick} />
-                <main className="flex-grow container mx-auto p-4 md:p-8 flex items-center justify-center">
-                    <div key={currentPage} className="animate-page-transition w-full flex items-center justify-center">
-                        {renderPage()}
-                    </div>
-                </main>
-                { currentPage !== Page.LynxAI && <Footer onOpenAiChoiceModal={() => setIsAiChoiceModalOpen(true)} /> }
-                {isAiChoiceModalOpen && (
-                    <AiChoiceModal 
-                        onClose={() => setIsAiChoiceModalOpen(false)}
-                        onSelectLynixId={handleSelectLynixId}
-                        onSelectGuest={handleSelectGuest}
-                    />
-                )}
-            </div>
-        </CallProvider>
+                @keyframes ai-pulse {
+                    0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 var(--ai-pulse-color); }
+                    50% { transform: scale(1.05); box-shadow: 0 0 0 10px transparent; }
+                }
+                .animate-ai-pulse { animation: ai-pulse 2.5s infinite; }
+            `}</style>
+            <Header currentPage={currentPage} setCurrentPage={setCurrentPage} loggedInUser={loggedInUser} onSignOut={handleSignOut} alerts={alerts} onAlertClick={handleAlertClick} />
+            <main className="flex-grow container mx-auto p-4 md:p-8 flex items-center justify-center">
+                <div key={currentPage} className="animate-page-transition w-full flex items-center justify-center">
+                    {renderPage()}
+                </div>
+            </main>
+            { currentPage !== Page.LynxAI && <Footer onOpenAiChoiceModal={() => setIsAiChoiceModalOpen(true)} /> }
+            {isAiChoiceModalOpen && (
+                <AiChoiceModal 
+                    onClose={() => setIsAiChoiceModalOpen(false)}
+                    onSelectLynixId={handleSelectLynixId}
+                    onSelectGuest={handleSelectGuest}
+                />
+            )}
+        </div>
     );
 };
+
+const App: React.FC = () => (
+    <CallProvider>
+        <AppContent />
+    </CallProvider>
+);
+
 
 export default App;

@@ -171,9 +171,9 @@ export const PhoneIcon = () => (
 );
 
 export const LargeUserIcon = () => (
-    <svg xmlns="http://www.w3.org/2000/svg" className="h-24 w-24 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0z" />
-        <circle cx="12" cy="12" r="10" strokeWidth={1.5} />
+    <svg xmlns="http://www.w3.org/2000/svg" className="w-24 h-24 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1" d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0z" />
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1" d="M12 22C6.477 22 2 17.523 2 12S6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z" />
     </svg>
 );
 
@@ -185,6 +185,7 @@ export const MuteIcon = () => (
 
 export const UnmuteIcon = () => (
     <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.99 11.5l-4.24-4.24m4.24 4.24l4.24-4.24m-4.24 4.24l-4.24 4.24m4.24-4.24l4.24 4.24M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.99 11.99a3 3 0 01-3-3V5a3 3 0 116 0v3.99a3 3 0 01-3 3zM19 11a7 7 0 01-14 0" />
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 11h2m7 0h2" />
     </svg>
 );

@@ -16,101 +16,124 @@ const ensureTableExists = async () => {
         CREATE TABLE IF NOT EXISTS calls (
             id SERIAL PRIMARY KEY,
             caller_id VARCHAR(255) NOT NULL,
-            receiver_id VARCHAR(255) NOT NULL,
-            caller_username VARCHAR(255) NOT NULL,
-            receiver_username VARCHAR(255) NOT NULL,
+            callee_id VARCHAR(255) NOT NULL,
             status VARCHAR(50) NOT NULL,
-            start_time TIMESTAMPTZ,
-            end_time TIMESTAMPTZ,
             created_at TIMESTAMPTZ DEFAULT NOW(),
+            answered_at TIMESTAMPTZ,
+            ended_at TIMESTAMPTZ,
             FOREIGN KEY (caller_id) REFERENCES users(id) ON DELETE CASCADE,
-            FOREIGN KEY (receiver_id) REFERENCES users(id) ON DELETE CASCADE
+            FOREIGN KEY (callee_id) REFERENCES users(id) ON DELETE CASCADE
         );
     `);
 };
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-    const { type, id } = req.query;
-    const userId = getUserIdFromRequest(req);
+    const { type, id: callId } = req.query;
 
+    const userId = getUserIdFromRequest(req);
+    if (!userId) {
+        return res.status(401).json({ message: 'Authentication required.' });
+    }
+    
+    try {
+        await ensureTableExists();
+    } catch(e) {
+        console.error("Failed to ensure calls table exists", e);
+        return res.status(500).json({ message: 'Database initialization failed.' });
+    }
+
+    // GET operations
     if (req.method === 'GET') {
+        // GET /api/phone?type=users - Fetch all callable users
         if (type === 'users') {
             try {
-                const { rows } = await pool.query("SELECT id, username FROM users ORDER BY username ASC");
+                const { rows } = await pool.query('SELECT id, username FROM users WHERE id != $1', [userId]);
                 return res.status(200).json(rows);
             } catch (error) {
-                console.error('Error fetching users for phone:', error);
+                console.error('Error fetching phone users:', error);
                 return res.status(500).json({ message: 'Internal Server Error' });
             }
         }
+        // GET /api/phone?type=status - Check for incoming calls or active call status
         if (type === 'status') {
-            if (!userId) return res.status(401).json({ message: 'Authentication required.' });
             try {
                 const { rows } = await pool.query(
-                    `SELECT * FROM calls 
-                     WHERE (receiver_id = $1 OR caller_id = $1) 
-                     AND status IN ('ringing', 'answered') 
-                     ORDER BY created_at DESC
-                     LIMIT 1`,
-                    [userId]
+                    `SELECT c.id, c.status, c.answered_at, u_caller.username as caller_username, u_callee.username as callee_username
+                     FROM calls c
+                     JOIN users u_caller ON c.caller_id = u_caller.id
+                     JOIN users u_callee ON c.callee_id = u_callee.id
+                     WHERE (c.callee_id = $1 OR c.caller_id = $1) AND c.status != $2 AND c.status != $3
+                     ORDER BY c.created_at DESC LIMIT 1`,
+                    [userId, CallStatus.Ended, CallStatus.Declined]
                 );
-                return res.status(200).json(rows.length > 0 ? rows[0] : null);
+                return res.status(200).json(rows[0] || null);
             } catch (error) {
                 console.error('Error fetching call status:', error);
                 return res.status(500).json({ message: 'Internal Server Error' });
             }
         }
-    }
-
-    if (req.method === 'POST') {
-        if (type === 'call') {
-            if (!userId) return res.status(401).json({ message: 'Authentication required.' });
-            try {
-                await ensureTableExists();
-                const { receiverId } = req.body;
-                if (!receiverId) return res.status(400).json({ message: 'receiverId is required.' });
-
-                const callerRes = await pool.query('SELECT username FROM users WHERE id = $1', [userId]);
-                const receiverRes = await pool.query('SELECT username FROM users WHERE id = $1', [receiverId]);
-                if (callerRes.rows.length === 0 || receiverRes.rows.length === 0) {
-                    return res.status(404).json({ message: 'Caller or receiver not found.' });
-                }
+        // GET /api/phone?id=[id] - Get details for a specific call
+        if (callId) {
+             try {
                 const { rows } = await pool.query(
-                    'INSERT INTO calls (caller_id, receiver_id, caller_username, receiver_username, status) VALUES ($1, $2, $3, $4, $5) RETURNING *',
-                    [userId, receiverId, callerRes.rows[0].username, receiverRes.rows[0].username, 'ringing']
+                     `SELECT c.id, c.status, c.answered_at, u_caller.username as caller_username, u_callee.username as callee_username
+                     FROM calls c
+                     JOIN users u_caller ON c.caller_id = u_caller.id
+                     JOIN users u_callee ON c.callee_id = u_callee.id
+                     WHERE c.id = $1 AND (c.caller_id = $2 OR c.callee_id = $2)`,
+                    [callId, userId]
                 );
-                return res.status(201).json(rows[0]);
+                if(rows.length === 0) return res.status(404).json({ message: 'Call not found.' });
+                return res.status(200).json(rows[0]);
             } catch (error) {
-                console.error('Error initiating call:', error);
+                console.error(`Error fetching call ${callId}:`, error);
                 return res.status(500).json({ message: 'Internal Server Error' });
             }
         }
+        
     }
-    
-    if (req.method === 'PUT') {
-        if (type === 'call-update' && typeof id === 'string' && /^\d+$/.test(id)) {
-            const callId = parseInt(id, 10);
-            try {
-                const { status } = req.body;
-                if (!status || !Object.values(CallStatus).includes(status)) {
-                    return res.status(400).json({ message: 'Invalid status provided.' });
-                }
-
-                let query;
-                if (status === CallStatus.Answered) {
-                    query = 'UPDATE calls SET status = $1, start_time = NOW() WHERE id = $2 RETURNING *';
-                } else if (status === CallStatus.Ended || status === CallStatus.Declined) {
-                    query = 'UPDATE calls SET status = $1, end_time = NOW() WHERE id = $2 RETURNING *';
-                } else {
-                     return res.status(400).json({ message: 'This status update is not permitted.' });
-                }
-                const { rows } = await pool.query(query, [status, callId]);
-                if (rows.length === 0) return res.status(404).json({ message: 'Call not found.' });
-                return res.status(200).json(rows[0]);
-            } catch (error) {
-                console.error(`Error updating call ${id}:`, error);
-                return res.status(500).json({ message: 'Internal Server Error' });
+    // POST /api/phone?type=call - Initiate a call
+    else if (req.method === 'POST' && type === 'call') {
+        try {
+            const { calleeId } = req.body;
+            if (!calleeId) {
+                return res.status(400).json({ message: 'calleeId is required.' });
             }
+            const { rows } = await pool.query(
+                'INSERT INTO calls (caller_id, callee_id, status) VALUES ($1, $2, $3) RETURNING *',
+                [userId, calleeId, CallStatus.Ringing]
+            );
+            return res.status(201).json(rows[0]);
+        } catch (error) {
+            console.error('Error initiating call:', error);
+            return res.status(500).json({ message: 'Internal Server Error' });
+        }
+    }
+    // PUT /api/phone?id=[id] - Update a call's status (answer, end, decline)
+    else if (req.method === 'PUT' && callId) {
+        try {
+            const { status } = req.body;
+            if (!status || !Object.values(CallStatus).includes(status as CallStatus)) {
+                return res.status(400).json({ message: 'A valid status is required.' });
+            }
+            let query = 'UPDATE calls SET status = $1';
+            const values: any[] = [status];
+            if (status === CallStatus.Active) {
+                query += ', answered_at = NOW()';
+            }
+            if (status === CallStatus.Ended) {
+                query += ', ended_at = NOW()';
+            }
+            query += ' WHERE id = $2 RETURNING *';
+            values.push(callId);
+            
+            const { rows } = await pool.query(query, values);
+            if(rows.length === 0) return res.status(404).json({ message: 'Call not found.' });
+            return res.status(200).json(rows[0]);
+
+        } catch (error) {
+            console.error(`Error updating call ${callId}:`, error);
+            return res.status(500).json({ message: 'Internal Server Error' });
         }
     }
 

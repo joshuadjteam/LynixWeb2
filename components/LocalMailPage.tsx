@@ -69,7 +69,7 @@ const ComposeView: React.FC<{ currentUser: User; onMailSent: () => void; }> = ({
         }
         setIsSending(true);
         try {
-            const response = await fetch('/api/localmail/messages', {
+            const response = await fetch('/api/localmail', {
                 method: 'POST',
                 headers: { 
                     'Content-Type': 'application/json',
@@ -135,7 +135,7 @@ const LocalMailPage: React.FC<{ currentUser: User }> = ({ currentUser }) => {
     const fetchMessages = useCallback(async () => {
         setIsLoading(true);
         try {
-            const response = await fetch(`/api/localmail/messages?view=${view}`, {
+            const response = await fetch(`/api/localmail?view=${view}`, {
                 headers: { 'x-user-id': currentUser.id }
             });
             if (response.ok) {

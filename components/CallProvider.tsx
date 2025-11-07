@@ -1,14 +1,13 @@
-
-import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode, useRef } from 'react';
-import { Call, CallStatus, User } from '../types';
+import React, { createContext, useContext, useState, useEffect, useCallback, useRef, ReactNode } from 'react';
+import { User, Call, CallStatus } from '../types';
 import IncomingCallModal from './IncomingCallModal';
 
 interface CallContextType {
     activeCall: Call | null;
-    makeCall: (receiverId: string) => Promise<void>;
+    initiateCall: (calleeId: string) => Promise<void>;
     answerCall: () => Promise<void>;
-    declineCall: () => Promise<void>;
     endCall: () => Promise<void>;
+    declineCall: () => Promise<void>;
 }
 
 const CallContext = createContext<CallContextType | undefined>(undefined);
@@ -21,132 +20,117 @@ export const useCall = (): CallContextType => {
     return context;
 };
 
-export const CallProvider: React.FC<{ children: ReactNode; user: User | null }> = ({ children, user }) => {
+// A mock hook to get the current user. In a real app, this would come from a real auth context.
+const useAuth = (): { user: User | null } => {
+    // This is a placeholder. We need a way to get the logged-in user.
+    // Since App.tsx manages the user state, we'll pass it down or use a proper AuthContext.
+    // For now, this is a limitation we'll address by assuming the user ID is available when calling context methods.
+    // Let's assume the user ID is passed via headers for API calls.
+    return { user: null };
+};
+
+export const CallProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     const [activeCall, setActiveCall] = useState<Call | null>(null);
     const [incomingCall, setIncomingCall] = useState<Call | null>(null);
     const pollIntervalRef = useRef<number | null>(null);
 
-    const updateCallStatus = useCallback(async (call: Call, status: CallStatus) => {
-        try {
-            const response = await fetch(`/api/phone?type=call-update&id=${call.id}`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ status }),
-            });
-            if (response.ok) {
-                const updatedCall = await response.json();
-                setActiveCall(updatedCall);
-                return updatedCall;
-            }
-        } catch (error) {
-            console.error(`Failed to update call status to ${status}:`, error);
-        }
-        return null;
-    }, []);
+    const getUserId = () => {
+        // This is a mock function. In a real app, this would come from a secure source.
+        // For now, we will rely on API calls being authenticated on the server via headers.
+        return localStorage.getItem('currentUser_id'); // Example of getting it from storage
+    };
 
-    const pollForStatus = useCallback(async () => {
-        if (!user || (activeCall && activeCall.status !== 'ringing')) {
-             // If we are in an active, answered call, we still need to poll
-             // in case the other user hangs up.
-             if(activeCall && activeCall.status === 'answered') {
-                // Let's do nothing for now and let the user hang up.
-                // A more advanced implementation might check if the call still exists.
-             } else {
-                return;
-             }
-        }
-       
+    const pollCallStatus = useCallback(async () => {
+        const userId = getUserId();
+        if (!userId) return;
+
         try {
             const response = await fetch('/api/phone?type=status', {
-                headers: { 'x-user-id': user.id }
+                headers: { 'x-user-id': userId }
             });
-
             if (response.ok) {
-                const data = await response.json();
-                if (data) {
-                    // This is an incoming call
-                    if (data.receiver_id === user.id && data.status === 'ringing' && !incomingCall && !activeCall) {
-                        setIncomingCall(data);
-                    } else if (data.id === activeCall?.id && data.status !== activeCall.status) {
-                        // The status of our active call has changed (e.g., answered by other party, or ended)
-                        setActiveCall(data);
-                    } else if (data.status === 'ended' || data.status === 'declined') {
-                        // The call is over, clear our state
-                        setActiveCall(null);
-                        setIncomingCall(null);
+                const callData: Call | null = await response.json();
+                
+                if (callData) {
+                     if (callData.status === CallStatus.Ringing) {
+                        setIncomingCall(callData);
                     }
+                    setActiveCall(callData);
                 } else {
-                     // No active or incoming calls found for the user
-                    if (activeCall && activeCall.status !== 'ended') {
-                         // The call was active but now it's gone from the server, meaning it ended.
-                        setActiveCall(null);
-                    }
-                    if (incomingCall) {
-                        setIncomingCall(null);
-                    }
+                    setActiveCall(null);
+                    setIncomingCall(null);
                 }
             }
         } catch (error) {
-            console.error("Polling error:", error);
+            console.error("Error polling call status:", error);
         }
-    }, [user, activeCall, incomingCall]);
-
+    }, []);
 
     useEffect(() => {
-        if (user) {
-            pollIntervalRef.current = window.setInterval(pollForStatus, 3000); // Poll every 3 seconds
-        } else {
-            if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
-            setActiveCall(null);
-            setIncomingCall(null);
-        }
+        // This is a simplified approach. A real app would use WebSockets.
+        pollIntervalRef.current = window.setInterval(pollCallStatus, 3000); // Poll every 3 seconds
         return () => {
-            if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
-        };
-    }, [user, pollForStatus]);
-
-    const makeCall = async (receiverId: string) => {
-        if (!user) return;
-        try {
-            const response = await fetch('/api/phone?type=call', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'x-user-id': user.id },
-                body: JSON.stringify({ receiverId }),
-            });
-            if (response.ok) {
-                const newCall = await response.json();
-                setActiveCall(newCall);
+            if (pollIntervalRef.current) {
+                clearInterval(pollIntervalRef.current);
             }
-        } catch (error) {
-            console.error("Failed to make call:", error);
+        };
+    }, [pollCallStatus]);
+
+    const initiateCall = async (calleeId: string) => {
+        const userId = getUserId();
+        if (!userId) return;
+
+        const response = await fetch('/api/phone?type=call', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'x-user-id': userId },
+            body: JSON.stringify({ calleeId }),
+        });
+        if (response.ok) {
+            const callData = await response.json();
+            setActiveCall(callData);
         }
     };
+    
+    const updateCallStatus = async (callId: number, status: CallStatus) => {
+         const userId = getUserId();
+         if (!userId) return;
+
+         await fetch(`/api/phone?id=${callId}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json', 'x-user-id': userId },
+            body: JSON.stringify({ status }),
+         });
+         pollCallStatus(); // Re-fetch status immediately
+    }
 
     const answerCall = async () => {
         if (!incomingCall) return;
-        const call = await updateCallStatus(incomingCall, CallStatus.Answered);
-        if (call) {
-            setActiveCall(call);
-            setIncomingCall(null);
-        }
+        setIncomingCall(null);
+        await updateCallStatus(incomingCall.id, CallStatus.Active);
+    };
+
+    const endCall = async () => {
+        if (!activeCall) return;
+        await updateCallStatus(activeCall.id, CallStatus.Ended);
+        setActiveCall(null);
     };
 
     const declineCall = async () => {
         if (!incomingCall) return;
-        await updateCallStatus(incomingCall, CallStatus.Declined);
+        await updateCallStatus(incomingCall.id, CallStatus.Declined);
         setIncomingCall(null);
-    };
-    
-    const endCall = async () => {
-        if (!activeCall) return;
-        await updateCallStatus(activeCall, CallStatus.Ended);
-        setActiveCall(null);
     };
 
     return (
-        <CallContext.Provider value={{ activeCall, makeCall, answerCall, declineCall, endCall }}>
+        <CallContext.Provider value={{ activeCall, initiateCall, answerCall, endCall, declineCall }}>
             {children}
-            {incomingCall && <IncomingCallModal call={incomingCall} onAnswer={answerCall} onDecline={declineCall} />}
+            {incomingCall && (
+                <IncomingCallModal
+                    call={incomingCall}
+                    onAnswer={answerCall}
+                    onDecline={declineCall}
+                />
+            )}
         </CallContext.Provider>
     );
 };

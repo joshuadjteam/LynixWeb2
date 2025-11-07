@@ -19,14 +19,6 @@ export enum ProfileTab {
   Billing = 'Billing',
 }
 
-export enum CallStatus {
-    Ringing = 'ringing',
-    Answered = 'answered',
-    Ended = 'ended',
-    Declined = 'declined',
-    Missed = 'missed', // Future use
-}
-
 export interface User {
   id: string;
   username: string;
@@ -91,14 +83,17 @@ export interface Contact {
     notes?: string;
 }
 
+export enum CallStatus {
+    Ringing = 'ringing',
+    Active = 'active',
+    Ended = 'ended',
+    Declined = 'declined',
+}
+
 export interface Call {
     id: number;
-    caller_id: string;
     caller_username: string;
-    receiver_id: string;
-    receiver_username: string;
+    callee_username: string;
     status: CallStatus;
-    start_time?: string;
-    end_time?: string;
-    created_at: string;
+    answered_at?: string;
 }
