@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useCallback } from 'react';
 import { User, Contact } from '../types';
 import { CloseIcon } from './icons';
@@ -59,7 +60,7 @@ const ContactsListPage: React.FC<{ currentUser: User }> = ({ currentUser }) => {
     const handleSave = async () => {
         if (!currentContact || !currentContact.name) return;
         const method = currentContact.id ? 'PUT' : 'POST';
-        const url = currentContact.id ? `/api/contacts/${currentContact.id}` : '/api/contacts';
+        const url = currentContact.id ? `/api/contacts?id=${currentContact.id}` : '/api/contacts';
         
         try {
             await fetch(url, {
@@ -77,7 +78,7 @@ const ContactsListPage: React.FC<{ currentUser: User }> = ({ currentUser }) => {
     const handleDelete = async () => {
         if (!currentContact || !currentContact.id) return;
         try {
-            await fetch(`/api/contacts/${currentContact.id}`, { 
+            await fetch(`/api/contacts?id=${currentContact.id}`, { 
                 method: 'DELETE',
                 headers: { 'x-user-id': currentUser.id }
             });

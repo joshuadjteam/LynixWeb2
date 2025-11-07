@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { User, CallStatus } from '../types';
 import { useCall } from './CallProvider';
@@ -85,7 +86,7 @@ const Dialer: React.FC<{ currentUser: User }> = ({ currentUser }) => {
         const fetchUsers = async () => {
             setIsLoading(true);
             try {
-                const res = await fetch('/api/phone/users');
+                const res = await fetch('/api/phone?type=users');
                 if (res.ok) {
                     const data = await res.json();
                     setUsers(data.filter((u: User) => u.id !== currentUser.id));

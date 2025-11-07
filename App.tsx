@@ -1,3 +1,4 @@
+
 import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { Page, User, GuestSession, Alert } from './types';
 import Header from './components/Header';
@@ -66,7 +67,7 @@ const App: React.FC = () => {
     const fetchAlerts = useCallback(async () => {
         if (!loggedInUser) return;
         try {
-            const response = await fetch('/api/chat/alerts', {
+            const response = await fetch('/api/chat?type=alerts', {
                 headers: {
                     'x-user-id': loggedInUser.id,
                 }
@@ -99,7 +100,7 @@ const App: React.FC = () => {
     const handleAlertClick = async (alert: Alert) => {
         // Find the user associated with the alert to open the chat
         try {
-            const res = await fetch('/api/chat/users');
+            const res = await fetch('/api/chat?type=users');
             const users = await res.json();
             const targetUser = users.find((u: User) => u.id === alert.sender_id);
             if (targetUser) {

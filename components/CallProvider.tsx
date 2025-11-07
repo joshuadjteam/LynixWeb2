@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode, useRef } from 'react';
 import { Call, CallStatus, User } from '../types';
 import IncomingCallModal from './IncomingCallModal';
@@ -27,7 +28,7 @@ export const CallProvider: React.FC<{ children: ReactNode; user: User | null }> 
 
     const updateCallStatus = useCallback(async (call: Call, status: CallStatus) => {
         try {
-            const response = await fetch(`/api/phone/calls/${call.id}`, {
+            const response = await fetch(`/api/phone?type=call-update&id=${call.id}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ status }),
@@ -56,7 +57,7 @@ export const CallProvider: React.FC<{ children: ReactNode; user: User | null }> 
         }
        
         try {
-            const response = await fetch('/api/phone/status', {
+            const response = await fetch('/api/phone?type=status', {
                 headers: { 'x-user-id': user.id }
             });
 
@@ -107,7 +108,7 @@ export const CallProvider: React.FC<{ children: ReactNode; user: User | null }> 
     const makeCall = async (receiverId: string) => {
         if (!user) return;
         try {
-            const response = await fetch('/api/phone/call', {
+            const response = await fetch('/api/phone?type=call', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'x-user-id': user.id },
                 body: JSON.stringify({ receiverId }),

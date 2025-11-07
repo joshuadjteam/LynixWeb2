@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useCallback } from 'react';
 import { User } from '../types';
 import { CloseIcon } from './icons';
@@ -160,13 +161,13 @@ const AdminPage: React.FC = () => {
         body: JSON.stringify(newUserPayload),
       });
     } else if (currentUser) {
-      await fetch(`/api/users/${currentUser.id}`, {
+      await fetch(`/api/users?id=${currentUser.id}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(formData),
       });
       if(password.trim() !== ''){
-        await fetch(`/api/users/${currentUser.id}`, {
+        await fetch(`/api/users?id=${currentUser.id}`, {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ password }),
@@ -179,7 +180,7 @@ const AdminPage: React.FC = () => {
   
   const handleDelete = async () => {
     if (currentUser) {
-      await fetch(`/api/users/${currentUser.id}`, { method: 'DELETE' });
+      await fetch(`/api/users?id=${currentUser.id}`, { method: 'DELETE' });
       fetchUsers();
       closeModal();
     }

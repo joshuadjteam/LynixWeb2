@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { User, DirectMessage } from '../types';
 // FIX: Import ChatIcon to be used when no user is selected.
@@ -22,7 +23,7 @@ const ChatPage: React.FC<ChatPageProps> = ({ currentUser }) => {
     useEffect(() => {
         const fetchUsers = async () => {
             try {
-                const response = await fetch('/api/chat/users');
+                const response = await fetch('/api/chat?type=users');
                 if (response.ok) {
                     const data = await response.json();
                     setUsers(data.filter((u: User) => u.id !== currentUser.id));
@@ -37,7 +38,7 @@ const ChatPage: React.FC<ChatPageProps> = ({ currentUser }) => {
     const fetchMessages = useCallback(async () => {
         if (!selectedUser) return;
         try {
-            const response = await fetch(`/api/chat/messages?senderId=${currentUser.id}&recipientId=${selectedUser.id}`);
+            const response = await fetch(`/api/chat?type=messages&senderId=${currentUser.id}&recipientId=${selectedUser.id}`);
             if (response.ok) {
                 const data = await response.json();
                 setMessages(data);
@@ -61,7 +62,7 @@ const ChatPage: React.FC<ChatPageProps> = ({ currentUser }) => {
         
         setIsLoading(true);
         try {
-            await fetch('/api/chat/messages', {
+            await fetch('/api/chat?type=messages', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
