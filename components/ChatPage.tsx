@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { User, DirectMessage } from '../types';
-// FIX: Import ChatIcon to be used when no user is selected.
 import { SendIcon, SimpleUserIcon, ChatIcon } from './icons';
 
 interface ChatPageProps {
