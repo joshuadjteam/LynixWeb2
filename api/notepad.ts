@@ -12,42 +12,63 @@ const getUserIdFromRequest = (req: VercelRequest): string | null => {
 
 const EXPIRATION_HOURS = 72;
 
+// Function to ensure the table exists
+const ensureTableExists = async () => {
+    await pool.query(`
+        CREATE TABLE IF NOT EXISTS notes (
+            user_id VARCHAR(255) PRIMARY KEY,
+            content TEXT,
+            updated_at TIMESTAMP WITH TIME ZONE,
+            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+        );
+    `);
+};
+
 export default async function handler(req: VercelRequest, res: VercelResponse) {
     const userId = getUserIdFromRequest(req);
     if (!userId) {
         return res.status(401).json({ message: 'Authentication required.' });
     }
 
+    try {
+        await ensureTableExists();
+    } catch(e) {
+        console.error("Failed to ensure notes table exists", e);
+        // We can still try to proceed, but this is a bad sign.
+    }
+    
+
     // GET /api/notepad - Fetch user's note
     if (req.method === 'GET') {
         const client = await pool.connect();
         try {
             const { rows } = await client.query(
-                'SELECT notepad_content, notepad_timestamp FROM users WHERE id = $1',
+                'SELECT content, updated_at FROM notes WHERE user_id = $1',
                 [userId]
             );
 
             if (rows.length === 0) {
-                return res.status(404).json({ message: 'User not found.' });
+                // No note exists for this user yet, return empty content
+                return res.status(200).json({ content: '' });
             }
 
-            const { notepad_content, notepad_timestamp } = rows[0];
+            const { content, updated_at } = rows[0];
 
             // Check for expiration
-            if (notepad_timestamp) {
-                const lastUpdated = new Date(notepad_timestamp).getTime();
+            if (updated_at) {
+                const lastUpdated = new Date(updated_at).getTime();
                 const expirationTime = lastUpdated + EXPIRATION_HOURS * 60 * 60 * 1000;
                 if (Date.now() > expirationTime) {
                     // Note has expired, clear it
                     await client.query(
-                        'UPDATE users SET notepad_content = $1, notepad_timestamp = NULL WHERE id = $2',
+                        'UPDATE notes SET content = $1, updated_at = NULL WHERE user_id = $2',
                         ['', userId]
                     );
                     return res.status(200).json({ content: '' });
                 }
             }
             
-            return res.status(200).json({ content: notepad_content || '' });
+            return res.status(200).json({ content: content || '' });
 
         } catch (error) {
             console.error('Error fetching note:', error);
@@ -65,15 +86,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 return res.status(400).json({ message: 'A "content" string is required.' });
             }
 
-            const { rowCount } = await pool.query(
-                'UPDATE users SET notepad_content = $1, notepad_timestamp = NOW() WHERE id = $2',
-                [content, userId]
-            );
+            // Use an UPSERT operation to either insert a new note or update an existing one
+            const query = `
+                INSERT INTO notes (user_id, content, updated_at)
+                VALUES ($1, $2, NOW())
+                ON CONFLICT (user_id)
+                DO UPDATE SET content = EXCLUDED.content, updated_at = EXCLUDED.updated_at;
+            `;
+            await pool.query(query, [userId, content]);
             
-            if (rowCount === 0) {
-                return res.status(404).json({ message: 'User not found.' });
-            }
-
             return res.status(200).json({ message: 'Note saved successfully.' });
 
         } catch (error) {

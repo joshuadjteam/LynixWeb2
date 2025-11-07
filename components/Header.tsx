@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Page, User, Alert } from '../types';
-import { LynixLogo, SoftphoneIcon, ChatIcon, MailIcon, BellIcon, NotepadIcon } from './icons';
+import { LynixLogo, BellIcon, WebIcon, AppsIcon } from './icons';
 import AlertsDropdown from './AlertsDropdown';
 
 interface HeaderProps {
@@ -41,16 +41,31 @@ const Header: React.FC<HeaderProps> = ({ currentPage, setCurrentPage, loggedInUs
     const baseButtonClasses = "px-4 py-2 rounded-lg text-white font-semibold transition-all duration-300 transform bg-gray-700 hover:bg-gray-600 hover:scale-105";
     const [isAlertsOpen, setIsAlertsOpen] = useState(false);
     const alertsRef = useRef<HTMLDivElement>(null);
+    const [isWebOpen, setIsWebOpen] = useState(false);
+    const webRef = useRef<HTMLDivElement>(null);
+    const [isAppsOpen, setIsAppsOpen] = useState(false);
+    const appsRef = useRef<HTMLDivElement>(null);
 
      useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
             if (alertsRef.current && !alertsRef.current.contains(event.target as Node)) {
                 setIsAlertsOpen(false);
             }
+            if (webRef.current && !webRef.current.contains(event.target as Node)) {
+                setIsWebOpen(false);
+            }
+            if (appsRef.current && !appsRef.current.contains(event.target as Node)) {
+                setIsAppsOpen(false);
+            }
         };
         document.addEventListener("mousedown", handleClickOutside);
         return () => document.removeEventListener("mousedown", handleClickOutside);
     }, []);
+
+    const handleAppClick = (page: Page) => {
+        setCurrentPage(page);
+        setIsAppsOpen(false);
+    };
 
     return (
         <header className="bg-gray-800 bg-opacity-70 backdrop-blur-sm text-white p-4 shadow-lg sticky top-0 z-50">
@@ -69,42 +84,58 @@ const Header: React.FC<HeaderProps> = ({ currentPage, setCurrentPage, loggedInUs
                 </div>
                 
                 <nav className="flex items-center gap-2 md:gap-4">
-                     <a 
-                        href="https://darshanjoshuakesavaruban.fwscheckout.com/" 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className={baseButtonClasses}
-                    >
-                        Buy a product
-                    </a>
+                    {/* Web Dropdown */}
+                    <div className="relative" ref={webRef}>
+                        <button
+                            onClick={() => setIsWebOpen(prev => !prev)}
+                            className={`${baseButtonClasses} flex items-center gap-2`}
+                        >
+                            <WebIcon />
+                            <span>Web</span>
+                        </button>
+                        {isWebOpen && (
+                            <div className="absolute top-full right-0 mt-2 w-48 bg-gray-700 rounded-lg shadow-lg z-50 animate-content-fade overflow-hidden">
+                                <a 
+                                    href="https://darshanjoshuakesavaruban.fwscheckout.com/" 
+                                    target="_blank" 
+                                    rel="noopener noreferrer"
+                                    className="block w-full text-left px-4 py-3 text-white hover:bg-gray-600 transition"
+                                >
+                                    Buy a product
+                                </a>
+                                <a 
+                                    href="https://sites.google.com/gcp.lynixity.x10.bz/myportal/home" 
+                                    target="_blank" 
+                                    rel="noopener noreferrer"
+                                    className="block w-full text-left px-4 py-3 text-white hover:bg-gray-600 transition"
+                                >
+                                    MyPortal
+                                </a>
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Apps Dropdown */}
                     {loggedInUser && (
-                         <NavButton page={Page.Softphone} currentPage={currentPage} setCurrentPage={setCurrentPage} icon={<SoftphoneIcon />}>
-                            Softphone
-                        </NavButton>
+                        <div className="relative" ref={appsRef}>
+                            <button
+                                onClick={() => setIsAppsOpen(prev => !prev)}
+                                className={`${baseButtonClasses} flex items-center gap-2`}
+                            >
+                                <AppsIcon />
+                                <span>Apps</span>
+                            </button>
+                            {isAppsOpen && (
+                                <div className="absolute top-full right-0 mt-2 w-48 bg-gray-700 rounded-lg shadow-lg z-50 animate-content-fade overflow-hidden">
+                                    <button onClick={() => handleAppClick(Page.Softphone)} className="block w-full text-left px-4 py-3 text-white hover:bg-gray-600 transition">Softphone</button>
+                                    {loggedInUser.chat_enabled && <button onClick={() => handleAppClick(Page.Chat)} className="block w-full text-left px-4 py-3 text-white hover:bg-gray-600 transition">Chat</button>}
+                                    {loggedInUser.localmail_enabled && <button onClick={() => handleAppClick(Page.LocalMail)} className="block w-full text-left px-4 py-3 text-white hover:bg-gray-600 transition">LocalMail</button>}
+                                    <button onClick={() => handleAppClick(Page.Notepad)} className="block w-full text-left px-4 py-3 text-white hover:bg-gray-600 transition">Notepad</button>
+                                </div>
+                            )}
+                        </div>
                     )}
-                    {loggedInUser && loggedInUser.chat_enabled && (
-                        <NavButton page={Page.Chat} currentPage={currentPage} setCurrentPage={setCurrentPage} icon={<ChatIcon />}>
-                            Chat
-                        </NavButton>
-                    )}
-                     {loggedInUser && loggedInUser.localmail_enabled && (
-                        <NavButton page={Page.LocalMail} currentPage={currentPage} setCurrentPage={setCurrentPage} icon={<MailIcon />}>
-                            LocalMail
-                        </NavButton>
-                    )}
-                    {loggedInUser && (
-                        <NavButton page={Page.Notepad} currentPage={currentPage} setCurrentPage={setCurrentPage} icon={<NotepadIcon />}>
-                            Notepad
-                        </NavButton>
-                    )}
-                    <a 
-                        href="https://sites.google.com/gcp.lynixity.x10.bz/myportal/home" 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className={baseButtonClasses}
-                    >
-                        MyPortal
-                    </a>
+
                     <NavButton page={Page.Contact} currentPage={currentPage} setCurrentPage={setCurrentPage}>
                         Contact Us
                     </NavButton>

@@ -8,7 +8,7 @@ interface NotepadPageProps {
 type SaveStatus = 'idle' | 'saving' | 'saved' | 'error';
 
 const NotepadPage: React.FC<NotepadPageProps> = ({ currentUser }) => {
-    const [content, setContent] = useState('');
+    const [content, setContent] = useState<string | null>(null);
     const [status, setStatus] = useState<SaveStatus>('idle');
     const saveTimeoutRef = useRef<number | null>(null);
 
@@ -60,7 +60,7 @@ const NotepadPage: React.FC<NotepadPageProps> = ({ currentUser }) => {
             clearTimeout(saveTimeoutRef.current);
         }
         if (content !== null) { // Don't save on initial load
-             setStatus('idle');
+            setStatus('idle');
             saveTimeoutRef.current = window.setTimeout(() => {
                 saveNote(content);
             }, 2000); // Auto-save after 2 seconds of inactivity
@@ -72,7 +72,7 @@ const NotepadPage: React.FC<NotepadPageProps> = ({ currentUser }) => {
             case 'saving': return 'Saving...';
             case 'saved': return 'Saved';
             case 'error': return 'Error saving';
-            default: return 'All changes will be saved automatically.';
+            default: return content === null ? 'Loading...' : 'All changes will be saved automatically.';
         }
     };
 
@@ -87,10 +87,11 @@ const NotepadPage: React.FC<NotepadPageProps> = ({ currentUser }) => {
             </div>
             <div className="flex-grow w-full h-full flex flex-col">
                 <textarea
-                    value={content}
+                    value={content ?? ''}
                     onChange={(e) => setContent(e.target.value)}
                     placeholder="Start typing here..."
                     className="w-full h-full bg-gray-900/50 text-white p-4 rounded-lg border-2 border-gray-700 focus:ring-2 focus:ring-purple-500 focus:outline-none transition resize-none text-lg leading-relaxed"
+                    disabled={content === null}
                 />
                  <div className="text-right text-sm text-gray-400 mt-2 pr-1">
                     {getStatusMessage()}
