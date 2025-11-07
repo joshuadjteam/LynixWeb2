@@ -54,19 +54,26 @@ const SignOnPage: React.FC<SignOnPageProps> = ({ onLoginSuccess }) => {
     };
 
     return (
-        <div className="flex flex-col items-center justify-center text-white p-6">
+        <div className="flex flex-col items-center justify-center text-gray-800 dark:text-white p-6">
             <style>{`
-                input:-webkit-autofill,
-                input:-webkit-autofill:hover, 
-                input:-webkit-autofill:focus, 
-                input:-webkit-autofill:active {
+                html:not(.dark) input:-webkit-autofill,
+                html:not(.dark) input:-webkit-autofill:hover, 
+                html:not(.dark) input:-webkit-autofill:focus, 
+                html:not(.dark) input:-webkit-autofill:active {
+                    -webkit-box-shadow: 0 0 0 30px #e5e7eb inset !important; /* bg-gray-200 */
+                    -webkit-text-fill-color: #1f2937 !important; /* text-gray-800 */
+                }
+                html.dark input:-webkit-autofill,
+                html.dark input:-webkit-autofill:hover, 
+                html.dark input:-webkit-autofill:focus, 
+                html.dark input:-webkit-autofill:active {
                     -webkit-box-shadow: 0 0 0 30px #374151 inset !important; /* bg-gray-700 */
                     -webkit-text-fill-color: #ffffff !important;
                 }
             `}</style>
-            <div className="w-full max-w-md bg-black bg-opacity-30 p-8 rounded-xl shadow-2xl border-2 border-purple-500/50 backdrop-blur-sm">
+            <div className="w-full max-w-md bg-white/70 dark:bg-black/30 p-8 rounded-xl shadow-2xl border-2 border-purple-500/50 backdrop-blur-sm">
                 <h2 className="text-2xl md:text-3xl font-bold text-center mb-4">Access Your Lynix Account</h2>
-                <p className="text-center text-gray-200 mb-8">
+                <p className="text-center text-gray-600 dark:text-gray-200 mb-8">
                     Sign in using your Phone Number, TalkID, Email, or Admin ID to continue.
                 </p>
                 <form onSubmit={handleSubmit} className="space-y-6">
@@ -78,7 +85,7 @@ const SignOnPage: React.FC<SignOnPageProps> = ({ onLoginSuccess }) => {
                             type="text"
                             value={login}
                             onChange={(e) => setLogin(e.target.value)}
-                            className="flex-1 bg-gray-700 text-white p-3 rounded-md border border-gray-600 focus:ring-2 focus:ring-purple-500 focus:outline-none transition"
+                            className="flex-1 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-white p-3 rounded-md border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-purple-500 focus:outline-none transition"
                             placeholder="Enter your ID"
                             disabled={isLoading}
                         />
@@ -90,7 +97,7 @@ const SignOnPage: React.FC<SignOnPageProps> = ({ onLoginSuccess }) => {
                             type="password"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
-                            className="flex-1 bg-gray-700 text-white p-3 rounded-md border border-gray-600 focus:ring-2 focus:ring-purple-500 focus:outline-none transition"
+                            className="flex-1 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-white p-3 rounded-md border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-purple-500 focus:outline-none transition"
                             placeholder="Enter your password"
                             disabled={isLoading}
                         />

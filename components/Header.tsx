@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Page, User, Alert } from '../types';
 import { LynixLogo, BellIcon, WebIcon, AppsIcon } from './icons';
 import AlertsDropdown from './AlertsDropdown';
+import ThemeToggle from './ThemeToggle';
 
 interface HeaderProps {
     currentPage: Page;
@@ -20,9 +21,9 @@ const NavButton: React.FC<{
     icon?: React.ReactNode;
 }> = ({ page, currentPage, setCurrentPage, children, icon }) => {
     const isActive = currentPage === page;
-    const baseClasses = "px-4 py-2 rounded-lg text-white font-semibold transition-all duration-300 transform flex items-center justify-center gap-2";
-    const activeClasses = "bg-blue-600 ring-2 ring-purple-400 ring-offset-2 ring-offset-gray-800 shadow-lg scale-105";
-    const inactiveClasses = "bg-gray-700 hover:bg-gray-600 hover:scale-105";
+    const baseClasses = "px-4 py-2 rounded-lg font-semibold transition-all duration-300 transform flex items-center justify-center gap-2";
+    const activeClasses = "bg-blue-600 text-white ring-2 ring-purple-400 ring-offset-2 ring-offset-slate-100 dark:ring-offset-gray-800 shadow-lg scale-105";
+    const inactiveClasses = "bg-gray-200 hover:bg-gray-300 text-gray-700 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-white hover:scale-105";
 
     return (
         <button
@@ -38,7 +39,7 @@ const NavButton: React.FC<{
 
 
 const Header: React.FC<HeaderProps> = ({ currentPage, setCurrentPage, loggedInUser, onSignOut, alerts, onAlertClick }) => {
-    const baseButtonClasses = "px-4 py-2 rounded-lg text-white font-semibold transition-all duration-300 transform bg-gray-700 hover:bg-gray-600 hover:scale-105";
+    const baseButtonClasses = "px-4 py-2 rounded-lg font-semibold transition-all duration-300 transform bg-gray-200 hover:bg-gray-300 text-gray-700 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-white hover:scale-105";
     const [isAlertsOpen, setIsAlertsOpen] = useState(false);
     const alertsRef = useRef<HTMLDivElement>(null);
     const [isWebOpen, setIsWebOpen] = useState(false);
@@ -68,7 +69,7 @@ const Header: React.FC<HeaderProps> = ({ currentPage, setCurrentPage, loggedInUs
     };
 
     return (
-        <header className="bg-gray-800 bg-opacity-70 backdrop-blur-sm text-white p-4 shadow-lg sticky top-0 z-50">
+        <header className="bg-white/80 dark:bg-gray-800/70 backdrop-blur-sm text-gray-800 dark:text-white p-4 shadow-lg sticky top-0 z-50">
             <div className="container mx-auto flex justify-between items-center">
                 <div className="flex items-center gap-4">
                     <div 
@@ -94,12 +95,12 @@ const Header: React.FC<HeaderProps> = ({ currentPage, setCurrentPage, loggedInUs
                             <span>Web</span>
                         </button>
                         {isWebOpen && (
-                            <div className="absolute top-full right-0 mt-2 w-48 bg-gray-700 rounded-lg shadow-lg z-50 animate-content-fade overflow-hidden">
+                            <div className="absolute top-full right-0 mt-2 w-48 bg-white dark:bg-gray-700 rounded-lg shadow-lg z-50 animate-content-fade overflow-hidden border dark:border-gray-600">
                                 <a 
                                     href="https://darshanjoshuakesavaruban.fwscheckout.com/" 
                                     target="_blank" 
                                     rel="noopener noreferrer"
-                                    className="block w-full text-left px-4 py-3 text-white hover:bg-gray-600 transition"
+                                    className="block w-full text-left px-4 py-3 text-gray-800 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-600 transition"
                                 >
                                     Buy a product
                                 </a>
@@ -107,7 +108,7 @@ const Header: React.FC<HeaderProps> = ({ currentPage, setCurrentPage, loggedInUs
                                     href="https://sites.google.com/gcp.lynixity.x10.bz/myportal/home" 
                                     target="_blank" 
                                     rel="noopener noreferrer"
-                                    className="block w-full text-left px-4 py-3 text-white hover:bg-gray-600 transition"
+                                    className="block w-full text-left px-4 py-3 text-gray-800 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-600 transition"
                                 >
                                     MyPortal
                                 </a>
@@ -126,11 +127,11 @@ const Header: React.FC<HeaderProps> = ({ currentPage, setCurrentPage, loggedInUs
                                 <span>Apps</span>
                             </button>
                             {isAppsOpen && (
-                                <div className="absolute top-full right-0 mt-2 w-48 bg-gray-700 rounded-lg shadow-lg z-50 animate-content-fade overflow-hidden">
-                                    <button onClick={() => handleAppClick(Page.Softphone)} className="block w-full text-left px-4 py-3 text-white hover:bg-gray-600 transition">Softphone</button>
-                                    {loggedInUser.chat_enabled && <button onClick={() => handleAppClick(Page.Chat)} className="block w-full text-left px-4 py-3 text-white hover:bg-gray-600 transition">Chat</button>}
-                                    {loggedInUser.localmail_enabled && <button onClick={() => handleAppClick(Page.LocalMail)} className="block w-full text-left px-4 py-3 text-white hover:bg-gray-600 transition">LocalMail</button>}
-                                    <button onClick={() => handleAppClick(Page.Notepad)} className="block w-full text-left px-4 py-3 text-white hover:bg-gray-600 transition">Notepad</button>
+                                <div className="absolute top-full right-0 mt-2 w-48 bg-white dark:bg-gray-700 rounded-lg shadow-lg z-50 animate-content-fade overflow-hidden border dark:border-gray-600">
+                                    <button onClick={() => handleAppClick(Page.Softphone)} className="block w-full text-left px-4 py-3 text-gray-800 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-600 transition">Softphone</button>
+                                    {loggedInUser.chat_enabled && <button onClick={() => handleAppClick(Page.Chat)} className="block w-full text-left px-4 py-3 text-gray-800 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-600 transition">Chat</button>}
+                                    {loggedInUser.localmail_enabled && <button onClick={() => handleAppClick(Page.LocalMail)} className="block w-full text-left px-4 py-3 text-gray-800 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-600 transition">LocalMail</button>}
+                                    <button onClick={() => handleAppClick(Page.Notepad)} className="block w-full text-left px-4 py-3 text-gray-800 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-600 transition">Notepad</button>
                                 </div>
                             )}
                         </div>
@@ -142,6 +143,7 @@ const Header: React.FC<HeaderProps> = ({ currentPage, setCurrentPage, loggedInUs
                     <NavButton page={Page.Home} currentPage={currentPage} setCurrentPage={setCurrentPage}>
                         Home
                     </NavButton>
+                    <ThemeToggle />
                     {loggedInUser ? (
                         <>
                             {loggedInUser.role === 'admin' && (
@@ -153,7 +155,7 @@ const Header: React.FC<HeaderProps> = ({ currentPage, setCurrentPage, loggedInUs
                                 Profile
                             </NavButton>
                              <div className="relative" ref={alertsRef}>
-                                <button onClick={() => setIsAlertsOpen(prev => !prev)} className="relative p-2 text-gray-300 hover:text-white transition">
+                                <button onClick={() => setIsAlertsOpen(prev => !prev)} className="relative p-2 text-gray-500 dark:text-gray-300 hover:text-gray-800 dark:hover:text-white transition">
                                     <BellIcon />
                                     {alerts.length > 0 && (
                                         <span className="absolute top-0 right-0 h-4 w-4 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
@@ -163,7 +165,7 @@ const Header: React.FC<HeaderProps> = ({ currentPage, setCurrentPage, loggedInUs
                                 </button>
                                 {isAlertsOpen && <AlertsDropdown alerts={alerts} onAlertClick={onAlertClick} onClose={() => setIsAlertsOpen(false)} />}
                             </div>
-                            <button onClick={onSignOut} className={`${baseButtonClasses} bg-purple-600 hover:bg-purple-700`}>
+                            <button onClick={onSignOut} className="px-4 py-2 rounded-lg text-white font-semibold transition-all duration-300 transform bg-purple-600 hover:bg-purple-700 hover:scale-105">
                                 Sign Out
                             </button>
                         </>

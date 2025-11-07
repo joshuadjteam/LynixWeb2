@@ -78,9 +78,9 @@ const LynxAiPage: React.FC<LynxAiPageProps> = ({ user, guestSession, onGuestMess
     };
 
     return (
-        <div className="w-full h-[calc(100vh-150px)] bg-black flex flex-col text-white font-sans">
-            <header className="w-full p-4 bg-gray-900/50 flex justify-between items-center">
-                <div className="text-gray-400 font-mono text-sm">LynxAI powered by Gemini 2.5 Flash</div>
+        <div className="w-full h-[calc(100vh-150px)] bg-white dark:bg-black flex flex-col text-gray-800 dark:text-white font-sans transition-colors duration-300">
+            <header className="w-full p-4 bg-gray-100 dark:bg-gray-900/50 flex justify-between items-center border-b border-gray-200 dark:border-gray-800">
+                <div className="text-gray-500 dark:text-gray-400 font-mono text-sm">LynxAI powered by Gemini 2.5 Flash</div>
                 <div className="flex items-center gap-3">
                     <span className="font-semibold">{username}</span>
                     <SimpleUserIcon />
@@ -98,7 +98,7 @@ const LynxAiPage: React.FC<LynxAiPageProps> = ({ user, guestSession, onGuestMess
                         {messages.map((msg, index) => (
                              <div key={index} className={`flex items-start gap-4 ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
                                 {msg.sender === 'gemini' && <div className="w-8 h-8 bg-purple-600 rounded-full flex-shrink-0"></div>}
-                                <div className={`max-w-xl p-4 rounded-2xl ${msg.sender === 'user' ? 'bg-blue-600' : 'bg-gray-800'}`}>
+                                <div className={`max-w-xl p-4 rounded-2xl ${msg.sender === 'user' ? 'bg-blue-600 text-white' : 'bg-gray-200 dark:bg-gray-800'}`}>
                                     <p className="whitespace-pre-wrap">{msg.text}</p>
                                 </div>
                             </div>
@@ -106,7 +106,7 @@ const LynxAiPage: React.FC<LynxAiPageProps> = ({ user, guestSession, onGuestMess
                          {isLoading && (
                            <div className="flex items-start gap-4 justify-start">
                                 <div className="w-8 h-8 bg-purple-600 rounded-full flex-shrink-0"></div>
-                                <div className="max-w-xl p-4 rounded-2xl bg-gray-800">
+                                <div className="max-w-xl p-4 rounded-2xl bg-gray-200 dark:bg-gray-800">
                                     <div className="flex items-center space-x-2">
                                         <div className="w-2 h-2 bg-gray-400 rounded-full animate-pulse"></div>
                                         <div className="w-2 h-2 bg-gray-400 rounded-full animate-pulse delay-75"></div>
@@ -120,19 +120,19 @@ const LynxAiPage: React.FC<LynxAiPageProps> = ({ user, guestSession, onGuestMess
                 )}
             </main>
 
-            <footer className="w-full p-4 flex flex-col items-center">
-                {isGuestMode && <p className="text-sm text-gray-400 mb-2">Responses left: {guestResponsesLeft}</p>}
-                <div className="w-full max-w-4xl flex items-center bg-gray-800 rounded-xl p-2">
+            <footer className="w-full p-4 flex flex-col items-center border-t border-gray-200 dark:border-gray-800">
+                {isGuestMode && <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">Responses left: {guestResponsesLeft}</p>}
+                <div className="w-full max-w-4xl flex items-center bg-gray-200 dark:bg-gray-800 rounded-xl p-2">
                     <input
                         type="text"
                         value={input}
                         onChange={(e) => setInput(e.target.value)}
                         onKeyDown={handleKeyPress}
                         placeholder={getPlaceholderText()}
-                        className="flex-1 bg-transparent p-3 text-white focus:outline-none placeholder-gray-400 disabled:placeholder-gray-600"
+                        className="flex-1 bg-transparent p-3 focus:outline-none placeholder-gray-500 dark:placeholder-gray-400 disabled:placeholder-gray-600"
                         disabled={isInputDisabled}
                     />
-                    <button onClick={handleSend} disabled={isInputDisabled || input.trim() === ''} className="p-3 text-white disabled:text-gray-500 hover:text-blue-400 transition rounded-full bg-gray-700 disabled:bg-gray-800">
+                    <button onClick={handleSend} disabled={isInputDisabled || input.trim() === ''} className="p-3 text-gray-800 dark:text-white disabled:text-gray-400 dark:disabled:text-gray-500 hover:text-blue-500 dark:hover:text-blue-400 transition rounded-full bg-gray-300 dark:bg-gray-700 disabled:bg-gray-200 dark:disabled:bg-gray-800">
                         <SendIcon />
                     </button>
                 </div>

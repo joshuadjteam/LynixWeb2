@@ -10,13 +10,13 @@ interface AiChoiceModalProps {
 const AiChoiceModal: React.FC<AiChoiceModalProps> = ({ onClose, onSelectLynixId, onSelectGuest }) => {
     return (
         <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-[100] p-4 animate-modal-open" onClick={onClose}>
-            <div className="bg-gray-800 rounded-2xl shadow-2xl w-full max-w-md flex flex-col relative text-white" onClick={(e) => e.stopPropagation()}>
-                <div className="flex justify-between items-center p-4 border-b border-gray-700">
+            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-md flex flex-col relative text-gray-800 dark:text-white" onClick={(e) => e.stopPropagation()}>
+                <div className="flex justify-between items-center p-4 border-b border-gray-200 dark:border-gray-700">
                     <h3 className="text-xl font-bold">Access LynxAI</h3>
-                    <button onClick={onClose} className="text-gray-400 hover:text-white"><CloseIcon /></button>
+                    <button onClick={onClose} className="text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white"><CloseIcon /></button>
                 </div>
                 <div className="p-6 flex flex-col gap-4">
-                    <p className="text-center text-gray-300">
+                    <p className="text-center text-gray-600 dark:text-gray-300">
                         Choose how you'd like to access our AI assistant, Mason.
                     </p>
                     <button

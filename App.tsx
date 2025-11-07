@@ -13,12 +13,14 @@ import ChatPage from './components/ChatPage';
 import LocalMailPage from './components/LocalMailPage';
 import NotepadPage from './components/NotepadPage';
 import Footer from './components/Footer';
+import { useTheme } from './components/ThemeContext';
 
 const GUEST_SESSION_KEY = 'lynixGuestAiSession';
 const GUEST_MESSAGE_LIMIT = 50;
 const GUEST_SESSION_DURATION = 60 * 60 * 1000; // 1 hour
 
 const App: React.FC = () => {
+    const { theme } = useTheme();
     const [currentPage, setCurrentPage] = useState<Page>(Page.Home);
     const [loggedInUser, setLoggedInUser] = useState<User | null>(null);
     const [isAiChoiceModalOpen, setIsAiChoiceModalOpen] = useState(false);
@@ -26,6 +28,15 @@ const App: React.FC = () => {
     const [guestSession, setGuestSession] = useState<GuestSession | null>(null);
     const [alerts, setAlerts] = useState<Alert[]>([]);
     const alertIntervalRef = useRef<number | null>(null);
+
+    useEffect(() => {
+        const root = window.document.documentElement;
+        if (theme === 'dark') {
+            root.classList.add('dark');
+        } else {
+            root.classList.remove('dark');
+        }
+    }, [theme]);
 
     const handleLoginSuccess = useCallback((user: User) => {
         setLoggedInUser(user);
@@ -178,8 +189,11 @@ const App: React.FC = () => {
     };
 
     return (
-        <div className="min-h-screen flex flex-col bg-gradient-to-br from-cyan-600 via-teal-500 to-green-400 font-sans">
+        <div className="min-h-screen flex flex-col bg-slate-100 text-slate-800 dark:bg-gradient-to-br dark:from-cyan-600 dark:via-teal-500 dark:to-green-400 dark:text-white font-sans transition-colors duration-300">
             <style>{`
+                :root { --ai-pulse-color: rgba(30, 64, 175, 0.4); }
+                html.dark { --ai-pulse-color: rgba(147, 197, 253, 0.4); }
+
                 @keyframes page-transition {
                     0% { opacity: 0; transform: translateY(20px); }
                     100% { opacity: 1; transform: translateY(0); }
@@ -199,8 +213,8 @@ const App: React.FC = () => {
                 .animate-modal-open { animation: modal-open 0.3s ease-out; }
 
                 @keyframes ai-pulse {
-                    0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(168, 85, 247, 0.4); }
-                    50% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(168, 85, 247, 0); }
+                    0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 var(--ai-pulse-color); }
+                    50% { transform: scale(1.05); box-shadow: 0 0 0 10px transparent; }
                 }
                 .animate-ai-pulse { animation: ai-pulse 2.5s infinite; }
             `}</style>
